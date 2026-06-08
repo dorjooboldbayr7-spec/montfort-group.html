@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<!-- saved from url=(0044)file:///C:/Users/User/my-projects/index.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IRIS — AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link href="./IRIS — AI_files/css2" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px}
+body{background:#090909;color:#f0eeeb;font-family:'Space Grotesk',sans-serif;overflow-x:hidden;cursor:crosshair}
+
+/* ── HERO canvas (z:0) ──────────────────────────────────────────── */
+#hero{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0}
+#c{display:block;width:100%;height:100%}
+
+/* ── UI OVERLAY (z:15) ──────────────────────────────────────────── */
+#ui{position:fixed;inset:0;z-index:15;pointer-events:none;
+    display:grid;
+    grid-template:'tl . nav' auto
+                   '.  .  .' 1fr
+                   '.  .  cr' auto
+                   'hl .  .' 1fr
+                   'hl .  br' auto / auto 1fr auto;
+    padding:28px 36px 32px}
+#tl{grid-area:tl;display:flex;flex-direction:column;gap:5px;align-self:start}
+.tag{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.08em;color:#f0eeeb;line-height:1.2}
+.tag.dim{color:#444;font-size:9px}
+#hn{grid-area:nav;display:flex;gap:28px;align-self:start;pointer-events:auto}
+#hn a{font-family:'Space Mono',monospace;font-size:10.5px;letter-spacing:.06em;color:#f0eeeb;text-decoration:none;transition:opacity .2s}
+#hn a:hover{opacity:.4}
+#cr{grid-area:cr;align-self:center;justify-self:end}
+#cr span{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;color:#333}
+#hl{grid-area:hl;align-self:end;padding-bottom:4px}
+.h-bold{font-family:'Space Grotesk',sans-serif;font-size:clamp(46px,6.8vw,108px);font-weight:700;letter-spacing:-.035em;line-height:.98;color:#f0eeeb}
+.h-with{font-family:'Space Grotesk',sans-serif;font-size:clamp(22px,2.8vw,46px);font-weight:300;font-style:italic;letter-spacing:.01em;color:#f0eeeb;padding-left:4px;line-height:1.5}
+.h-slash{font-family:'Space Mono',monospace;font-size:clamp(30px,4.5vw,72px);font-weight:700;letter-spacing:-.02em;line-height:1.1;color:#f0eeeb}
+#br{grid-area:br;align-self:end;justify-self:end}
+#counter{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.12em;color:#333}
+
+#scroll-hint{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);z-index:15;
+             display:flex;flex-direction:column;align-items:center;gap:8px;
+             opacity:0;animation:fadeIn 1s .8s forwards}
+#scroll-hint span{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:#555}
+.sh-line{width:1px;height:48px;background:linear-gradient(to bottom,#555,transparent);animation:pulse 2s ease infinite}
+@keyframes fadeIn{to{opacity:1}}
+@keyframes pulse{0%,100%{opacity:.3;transform:scaleY(.8)}50%{opacity:1;transform:scaleY(1)}}
+
+/* ── SECTION OVERLAYS (z:10) ────────────────────────────────────── */
+.sec-ov{
+  position:fixed;top:50%;
+  transform:translateY(-50%) scale(.96);
+  max-height:85vh;overflow-y:auto;overscroll-behavior:contain;
+  opacity:0;z-index:10;pointer-events:none;
+  will-change:opacity,transform;
+}
+.sec-ov.vis{pointer-events:auto}
+.sec-ov::-webkit-scrollbar{width:3px}
+.sec-ov::-webkit-scrollbar-thumb{background:#2a2a2a;border-radius:2px}
+
+/* Plans + Contact: left of cable */
+#ov-plans,#ov-contact{left:0;right:calc(50% + 56px)}
+/* Services: right of cable */
+#ov-services{left:calc(50% + 56px);right:0}
+
+.ov-dark{background:rgba(10,10,10,.96);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+         padding:40px 36px 48px;border:1px solid #1a1a1a}
+.ov-light{background:rgba(240,238,235,.96);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+          padding:40px 36px 48px;border:1px solid #d4d2cf}
+
+.ov-label{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.28em;text-transform:uppercase;margin-bottom:20px}
+.ov-label.dk{color:#444}
+.ov-label.lt{color:#888}
+.ov-dark h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(26px,3.2vw,52px);font-weight:700;letter-spacing:-.03em;margin-bottom:32px;line-height:1;color:#f0eeeb}
+.ov-light h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(26px,3.2vw,52px);font-weight:700;letter-spacing:-.03em;margin-bottom:32px;line-height:1;color:#0d0d0d}
+
+/* Plans cards */
+.plans-grid{display:grid;grid-template-columns:1fr;gap:2px}
+.plan-card{background:#111;padding:24px 22px;border-top:1px solid #1e1e1e;position:relative;overflow:hidden}
+.plan-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:#c8841a;transform:scaleX(0);transform-origin:left;transition:transform .5s}
+.plan-card:hover::before{transform:scaleX(1)}
+.plan-tier{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.3em;text-transform:uppercase;color:#444;margin-bottom:10px}
+.plan-price{font-family:'Space Grotesk',sans-serif;font-size:clamp(24px,2.4vw,38px);font-weight:700;letter-spacing:-.04em;color:#f0eeeb;line-height:1;margin-bottom:3px}
+.plan-cycle{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.1em;color:#444;margin-bottom:14px}
+.plan-features{list-style:none;margin-bottom:16px}
+.plan-features li{font-family:'Space Mono',monospace;font-size:9px;color:#777;padding:5px 0;border-bottom:1px solid #181818;letter-spacing:.03em}
+.plan-features li::before{content:'→  ';color:#c8841a}
+.plan-cta{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:#f0eeeb;border:1px solid #2a2a2a;padding:9px 16px;text-decoration:none;display:inline-block;transition:border-color .3s,color .3s}
+.plan-cta:hover{border-color:#c8841a;color:#c8841a}
+.plan-card.featured{background:#141414;border-top:1px solid #c8841a}
+.plan-card.featured .plan-price{color:#c8841a}
+
+/* Services */
+.service-row{padding:20px 0;border-top:1px solid #d4d2cf;display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:14px;cursor:default}
+.service-row:last-child{border-bottom:1px solid #d4d2cf}
+.service-row:hover .sv-title{letter-spacing:.02em}
+.sv-num{font-family:'Space Mono',monospace;font-size:9px;color:#aaa;letter-spacing:.1em}
+.sv-title{font-family:'Space Grotesk',sans-serif;font-size:clamp(13px,1.4vw,19px);font-weight:500;letter-spacing:-.01em;transition:letter-spacing .4s;color:#0d0d0d}
+.sv-arrow{font-size:13px;color:#aaa;transition:transform .3s,color .3s}
+.service-row:hover .sv-arrow{transform:translateX(4px) translateY(-4px);color:#c8841a}
+
+/* Contact */
+.contact-sub{font-family:'Space Mono',monospace;font-size:10px;line-height:1.85;color:#444;letter-spacing:.03em;margin-bottom:28px}
+.contact-detail{margin-bottom:12px}
+.cd-label{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.28em;text-transform:uppercase;color:#333;margin-bottom:4px}
+.cd-val{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.05em;color:#666}
+.cd-val a{color:#666;text-decoration:none;border-bottom:1px solid transparent;transition:border-color .3s,color .3s}
+.cd-val a:hover{color:#c8841a;border-color:#c8841a}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.26em;text-transform:uppercase;color:#333;margin-bottom:7px}
+.form-group input,.form-group textarea,.form-group select{width:100%;background:transparent;border:none;border-bottom:1px solid #1e1e1e;padding:8px 0;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.04em;color:#f0eeeb;outline:none;transition:border-color .3s;appearance:none}
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:#c8841a}
+.form-group input::placeholder,.form-group textarea::placeholder{color:#222}
+.form-group select option{background:#111;color:#f0eeeb}
+.form-group textarea{resize:none;height:60px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btn-send{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:#090909;background:#f0eeeb;border:none;padding:12px 28px;cursor:crosshair;transition:background .3s,color .3s;margin-top:4px}
+.btn-send:hover{background:#c8841a;color:#fff}
+
+/* ── SCROLL SPACER ──────────────────────────────────────────────── */
+#scroll-space{height:400vh;position:relative;z-index:1}
+
+/* ── FOOTER ─────────────────────────────────────────────────────── */
+footer{background:#050505;padding:40px 60px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid #111;position:relative;z-index:5}
+.ft-logo{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.25em;color:#2a2a2a}
+.ft-copy{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.1em;color:#1a1a1a}
+
+/* ── RESPONSIVE ─────────────────────────────────────────────────── */
+@media(max-width:900px){
+  #hn{display:none}
+  .h-bold{font-size:clamp(38px,12vw,72px)}
+  .h-slash{font-size:clamp(26px,8vw,54px)}
+  #ov-plans,#ov-contact,#ov-services{left:12px;right:12px}
+  .ov-dark,.ov-light{padding:28px 22px 36px}
+}
+</style>
+</head>
+<body>
+
+<div id="hero"><canvas id="c" width="1862" height="925" style="width: 1490px; height: 740px;"></canvas></div>
+
+<div id="ui">
+  <div id="tl">
+    <span class="tag">(IRIS_AI)</span>
+    <span class="tag dim">(v0m)</span>
+  </div>
+  <nav id="hn">
+    <a href="file:///C:/Users/User/my-projects/index.html#" onclick="navTo(&#39;home&#39;);return false">home ↗</a>
+    <a href="file:///C:/Users/User/my-projects/index.html#" onclick="navTo(&#39;plans&#39;);return false">plans ↗</a>
+    <a href="file:///C:/Users/User/my-projects/index.html#" onclick="navTo(&#39;services&#39;);return false">services ↗</a>
+    <a href="file:///C:/Users/User/my-projects/index.html#" onclick="navTo(&#39;contact&#39;);return false">contact us ↗</a>
+  </nav>
+  <div id="cr"><span class="tag">(A)</span></div>
+  <div id="hl">
+    <div class="h-bold">WHERE AI MERGES</div>
+    <div class="h-with">with</div>
+    <div class="h-slash">// YOUR VISION</div>
+  </div>
+  <div id="br"><span id="counter">(003/004)</span></div>
+</div>
+<div id="scroll-hint" style="opacity: 0;"><span>scroll</span><div class="sh-line"></div></div>
+
+<!-- Plans (left of cable) -->
+<div class="sec-ov" id="ov-plans" style="opacity: 0; transform: translateY(-50%) scale(0.96);">
+  <div class="ov-dark">
+    <p class="ov-label dk">002 — Pricing</p>
+    <h2>Simple,<br>transparent<br>plans.</h2>
+    <div class="plans-grid">
+      <div class="plan-card">
+        <div class="plan-tier">Starter</div>
+        <div class="plan-price">$499</div>
+        <div class="plan-cycle">/ month</div>
+        <ul class="plan-features">
+          <li>AI Strategy Consultation</li>
+          <li>5 Automation Workflows</li>
+          <li>Monthly Reporting</li>
+          <li>Email Support</li>
+          <li>API Access (Limited)</li>
+        </ul>
+        <a href="file:///C:/Users/User/my-projects/index.html#" onclick="navTo(&#39;contact&#39;);return false" class="plan-cta">Get Started</a>
+      </div>
+      <div class="plan-card featured">
+        <div class="plan-tier">Professional</div>
+        <div class="plan-price">$1,899</div>
+        <div class="plan-cycle">/ month</div>
+        <ul class="plan-features">
+          <li>Full AI Architecture</li>
+          <li>25 Automation Workflows</li>
+          <li>Custom Model Training</li>
+          <li>Priority Support 24/7</li>
+          <li>Full API Access</li>
+        </ul>
+        <a href="file:///C:/Users/User/my-projects/index.html#" onclick="navTo(&#39;contact&#39;);return false" class="plan-cta">Get Started</a>
+      </div>
+      <div class="plan-card">
+        <div class="plan-tier">Enterprise</div>
+        <div class="plan-price">Custom</div>
+        <div class="plan-cycle">/ tailored</div>
+        <ul class="plan-features">
+          <li>Sovereign AI Infrastructure</li>
+          <li>Unlimited Workflows</li>
+          <li>Dedicated AI Engineers</li>
+          <li>On-Site Integration</li>
+          <li>SLA Guarantees</li>
+        </ul>
+        <a href="file:///C:/Users/User/my-projects/index.html#" onclick="navTo(&#39;contact&#39;);return false" class="plan-cta">Contact Sales</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Services (right of cable) -->
+<div class="sec-ov vis" id="ov-services" style="opacity: 1; transform: translateY(-50%) scale(1);">
+  <div class="ov-light">
+    <p class="ov-label lt">003 — Capabilities</p>
+    <h2>What we<br>build for you.</h2>
+    <div>
+      <div class="service-row"><span class="sv-num">01</span><span class="sv-title">AI Strategy &amp; Roadmap</span><span class="sv-arrow">↗</span></div>
+      <div class="service-row"><span class="sv-num">02</span><span class="sv-title">Custom Model Training</span><span class="sv-arrow">↗</span></div>
+      <div class="service-row"><span class="sv-num">03</span><span class="sv-title">Automation Architecture</span><span class="sv-arrow">↗</span></div>
+      <div class="service-row"><span class="sv-num">04</span><span class="sv-title">Intelligent Interface Design</span><span class="sv-arrow">↗</span></div>
+      <div class="service-row"><span class="sv-num">05</span><span class="sv-title">Data Pipeline Engineering</span><span class="sv-arrow">↗</span></div>
+      <div class="service-row"><span class="sv-num">06</span><span class="sv-title">Conversational AI Systems</span><span class="sv-arrow">↗</span></div>
+      <div class="service-row"><span class="sv-num">07</span><span class="sv-title">Predictive Analytics</span><span class="sv-arrow">↗</span></div>
+      <div class="service-row"><span class="sv-num">08</span><span class="sv-title">AI Security &amp; Governance</span><span class="sv-arrow">↗</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Contact (left of cable) -->
+<div class="sec-ov" id="ov-contact" style="opacity: 0; transform: translateY(-50%) scale(0.96);">
+  <div class="ov-dark">
+    <p class="ov-label dk">004 — Contact</p>
+    <h2>Let's build<br>something<br>inevitable.</h2>
+    <p class="contact-sub">Organizations ready to move beyond<br>experimentation into real AI advantage.</p>
+    <div class="contact-detail"><div class="cd-label">Email</div><div class="cd-val"><a href="mailto:hello@iris-ai.studio">hello@iris-ai.studio</a></div></div>
+    <div class="contact-detail"><div class="cd-label">Offices</div><div class="cd-val">New York · London · Singapore</div></div>
+    <form onsubmit="submitForm(event)" style="margin-top:22px">
+      <div class="form-row">
+        <div class="form-group"><label>First Name</label><input type="text" placeholder="John" required=""></div>
+        <div class="form-group"><label>Last Name</label><input type="text" placeholder="Smith" required=""></div>
+      </div>
+      <div class="form-group"><label>Email</label><input type="email" placeholder="john@company.com" required=""></div>
+      <div class="form-group"><label>Company</label><input type="text" placeholder="Acme Corp."></div>
+      <div class="form-group">
+        <label>Interest</label>
+        <select><option value="" disabled="" selected="">— Select —</option><option>AI Strategy</option><option>Custom Model Training</option><option>Automation Architecture</option><option>Enterprise Plan</option><option>Other</option></select>
+      </div>
+      <div class="form-group"><label>Message</label><textarea placeholder="Tell us about your project..."></textarea></div>
+      <button type="submit" class="btn-send" id="submit-btn">Send Message →</button>
+    </form>
+  </div>
+</div>
+
+<div id="scroll-space" style="height:400vh"></div>
+
+<footer>
+  <span class="ft-logo">IRIS_AI</span>
+  <span class="ft-copy">© 2026 — All rights reserved</span>
+</footer>
+
+<script src="./IRIS — AI_files/three.min.js.download"></script>
+<script>
+// ─── Scroll orchestration ────────────────────────────────────────
+const counterEl  = document.getElementById('counter');
+const scrollHint = document.getElementById('scroll-hint');
+const ovPlans    = document.getElementById('ov-plans');
+const ovServices = document.getElementById('ov-services');
+const ovContact  = document.getElementById('ov-contact');
+
+window._revealTarget = 0;
+
+function easeInOutCubic(t) {
+  return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2;
+}
+function secOpacity(p,a,b,c,d) {
+  if(p<=a) return 0;
+  if(p<=b) return (p-a)/(b-a);
+  if(p<=c) return 1;
+  if(p<=d) return 1-(p-c)/(d-c);
+  return 0;
+}
+function applyOverlay(el, o) {
+  el.style.opacity = o;
+  el.style.transform = `translateY(-50%) scale(${0.96+o*0.04})`;
+  el.classList.toggle('vis', o > 0.05);
+}
+
+function onScroll() {
+  const maxScroll = document.body.scrollHeight - window.innerHeight;
+  if(maxScroll <= 0) return;
+  const p = Math.min(1, window.scrollY / maxScroll);
+
+  window._revealTarget = easeInOutCubic(Math.max(0, Math.min(1, p)));
+
+  applyOverlay(ovPlans,    secOpacity(p, 0.06, 0.14, 0.34, 0.44));
+  applyOverlay(ovServices, secOpacity(p, 0.46, 0.54, 0.64, 0.74));
+  applyOverlay(ovContact,  secOpacity(p, 0.76, 0.84, 0.93, 0.98));
+
+  if(p > 0) scrollHint.style.opacity = Math.max(0, 1 - p*18);
+
+  if      (p < 0.05) counterEl.textContent = '(001/004)';
+  else if (p < 0.45) counterEl.textContent = '(002/004)';
+  else if (p < 0.75) counterEl.textContent = '(003/004)';
+  else               counterEl.textContent = '(004/004)';
+}
+window.addEventListener('scroll', onScroll, { passive: true });
+window.addEventListener('DOMContentLoaded', () => requestAnimationFrame(onScroll));
+
+function navTo(name) {
+  const targets = { home:0, plans:0.14, services:0.49, contact:0.78 };
+  const ms = document.body.scrollHeight - window.innerHeight;
+  window.scrollTo({ top: ms * (targets[name]??0), behavior:'smooth' });
+}
+function submitForm(e) {
+  e.preventDefault();
+  const btn = document.getElementById('submit-btn');
+  btn.textContent = 'Sent ✓'; btn.style.background='#1a6a3a'; btn.style.color='#fff';
+  setTimeout(()=>{ btn.textContent='Send Message →'; btn.style.background=''; btn.style.color=''; e.target.reset(); }, 3000);
+}
+
+// ─── Three.js scene ──────────────────────────────────────────────
+(function(){
+  const canvas = document.getElementById('c');
+  const W = window.innerWidth, H = window.innerHeight;
+
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias:true });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.setSize(W, H);
+  renderer.localClippingEnabled = true;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.1;
+  renderer.outputEncoding = THREE.sRGBEncoding;
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x090909);
+  scene.fog = new THREE.FogExp2(0x090909, 0.016);
+
+  // Camera slightly above center, looking slightly down → we can see the cut face
+  const camera = new THREE.PerspectiveCamera(44, W/H, 0.1, 100);
+  camera.position.set(0, 2.5, 18);
+  camera.lookAt(0, 0, 0);
+
+  // World extents at z=0
+  const halfH_w = 18 * Math.tan(THREE.MathUtils.degToRad(22));
+  const TOP_Y   =  halfH_w * 1.25;
+  const BOT_Y   = -halfH_w * 1.25;
+
+  // ── Constants ──────────────────────────────────────────────────
+  const CABLE_R = 0.82;
+  const WIRE_R  = 0.105;
+  const WIRE_D  = 0.38;   // wire distance from cable axis
+  const SEG     = 160;
+
+  // ── Lighting ───────────────────────────────────────────────────
+  scene.add(new THREE.AmbientLight(0xffffff, 0.06));
+
+  const key = new THREE.DirectionalLight(0xfff8f0, 1.6);
+  key.position.set(6, 10, 10);
+  scene.add(key);
+
+  const rim = new THREE.DirectionalLight(0x111111, 1.0);
+  rim.position.set(-5, -8, -6);
+  scene.add(rim);
+
+  // Golden point lights at cut — intensities animated
+  const cutLightA = new THREE.PointLight(0xffaa00, 0, 9);
+  const cutLightB = new THREE.PointLight(0xff6600, 0, 6);
+  scene.add(cutLightA, cutLightB);
+
+  // ── Cable path (slightly curved, mostly vertical) ──────────────
+  const cablePath = new THREE.CatmullRomCurve3([
+    new THREE.Vector3( 0.00,  TOP_Y,        0.00),
+    new THREE.Vector3( 0.14,  halfH_w*0.5,  0.10),
+    new THREE.Vector3(-0.10,  0,            0.14),
+    new THREE.Vector3( 0.08, -halfH_w*0.5,  0.08),
+    new THREE.Vector3( 0.00,  BOT_Y,        0.00),
+  ], false, 'catmullrom', 0.5);
+
+  // ── Clip planes ────────────────────────────────────────────────
+  // outerClip keeps outer cable where y <= cutY  →  normal=(0,-1,0), const=cutY
+  const outerClip = new THREE.Plane(new THREE.Vector3(0, -1, 0),  TOP_Y);
+  // wireClip keeps wires where y >= cutY          →  normal=(0, 1,0), const=-cutY
+  const wireClip  = new THREE.Plane(new THREE.Vector3(0,  1, 0), -TOP_Y);
+
+  // ── Outer cable ────────────────────────────────────────────────
+  const outerGeo = new THREE.TubeGeometry(cablePath, SEG, CABLE_R, 40, false);
+  const outerMat = new THREE.MeshStandardMaterial({
+    color: 0x0c0c0c, roughness: 0.85, metalness: 0.03,
+    clippingPlanes: [outerClip], clipShadows: true,
+  });
+  scene.add(new THREE.Mesh(outerGeo, outerMat));
+
+  // ── Wire helper ────────────────────────────────────────────────
+  function buildWireCurve(startAngle) {
+    const pts = [];
+    const N = SEG + 1;
+    const tmp = new THREE.Vector3();
+    for(let i = 0; i < N; i++) {
+      const t   = i / (N-1);
+      const pos = cablePath.getPoint(t);
+      const tan = cablePath.getTangent(t).normalize();
+
+      // Frame: use x as reference (cable is mostly vertical)
+      const refV = Math.abs(tan.x) < 0.85
+                   ? new THREE.Vector3(1,0,0)
+                   : new THREE.Vector3(0,1,0);
+      const right = tmp.clone().crossVectors(tan, refV).normalize();
+      const up    = new THREE.Vector3().crossVectors(right, tan).normalize();
+
+      const angle = startAngle + t * Math.PI * 4; // 2 full twists
+      const c = Math.cos(angle), s = Math.sin(angle);
+
+      pts.push(new THREE.Vector3(
+        pos.x + (right.x*c + up.x*s) * WIRE_D,
+        pos.y + (right.y*c + up.y*s) * WIRE_D,
+        pos.z + (right.z*c + up.z*s) * WIRE_D,
+      ));
+    }
+    return new THREE.CatmullRomCurve3(pts, false, 'catmullrom', 0.5);
+  }
+
+  const WIRE_COLS = [0xe8a020, 0xff8800, 0xd47010, 0xf0c030];
+  const WIRE_EMI  = [0xb06000, 0xcc4400, 0x904000, 0xb08000];
+  const WIRE_ANG  = [0, Math.PI/2, Math.PI, 3*Math.PI/2];
+
+  WIRE_ANG.forEach((ang, wi) => {
+    const curve = buildWireCurve(ang);
+    const geo   = new THREE.TubeGeometry(curve, SEG, WIRE_R, 12, false);
+    const mat   = new THREE.MeshStandardMaterial({
+      color: WIRE_COLS[wi], emissive: WIRE_EMI[wi], emissiveIntensity: 2.4,
+      roughness: 0.12, metalness: 0.9,
+      clippingPlanes: [wireClip], clipShadows: true,
+    });
+    scene.add(new THREE.Mesh(geo, mat));
+  });
+
+  // ── Cross-section disc at cut point ───────────────────────────
+  // Canvas texture showing cable anatomy (viewed from side/above)
+  const xsCvs = document.createElement('canvas');
+  xsCvs.width = xsCvs.height = 256;
+  const ctx = xsCvs.getContext('2d');
+  const CX = 128, CY = 128, CR = 120;
+
+  // Outer rubber casing
+  ctx.beginPath(); ctx.arc(CX,CY,CR,0,Math.PI*2);
+  ctx.fillStyle = '#111'; ctx.fill();
+  // Inner gap
+  ctx.beginPath(); ctx.arc(CX,CY,CR*0.72,0,Math.PI*2);
+  ctx.fillStyle = '#080808'; ctx.fill();
+  // 4 gold wire cross-sections
+  [[CX, CY-CR*0.46],[CX+CR*0.46,CY],[CX,CY+CR*0.46],[CX-CR*0.46,CY]].forEach(([wx,wy])=>{
+    const g = ctx.createRadialGradient(wx,wy,0,wx,wy,CR*0.22);
+    g.addColorStop(0,'#ffdd55'); g.addColorStop(0.5,'#cc7700'); g.addColorStop(1,'transparent');
+    ctx.beginPath(); ctx.arc(wx,wy,CR*0.22,0,Math.PI*2);
+    ctx.fillStyle = g; ctx.fill();
+    ctx.beginPath(); ctx.arc(wx,wy,CR*0.09,0,Math.PI*2);
+    ctx.fillStyle = '#ffaa00'; ctx.fill();
+  });
+  // Outer edge ring
+  ctx.beginPath(); ctx.arc(CX,CY,CR-1,0,Math.PI*2);
+  ctx.strokeStyle='#222'; ctx.lineWidth=3; ctx.stroke();
+
+  const xsTex  = new THREE.CanvasTexture(xsCvs);
+  const xsDisc = new THREE.Mesh(
+    new THREE.CircleGeometry(CABLE_R, 64),
+    new THREE.MeshBasicMaterial({ map:xsTex, side:THREE.DoubleSide, depthWrite:false })
+  );
+  xsDisc.rotation.x = Math.PI/2;
+  scene.add(xsDisc);
+
+  // Thin gold ring at cut edge
+  const cutRing = new THREE.Mesh(
+    new THREE.TorusGeometry(CABLE_R, 0.03, 8, 80),
+    new THREE.MeshBasicMaterial({ color:0x775500 })
+  );
+  cutRing.rotation.x = Math.PI/2;
+  scene.add(cutRing);
+
+  // Soft glow halo at cut
+  const haloMesh = new THREE.Mesh(
+    new THREE.CircleGeometry(CABLE_R * 3, 32),
+    new THREE.MeshBasicMaterial({ color:0xffaa00, transparent:true, opacity:0, depthWrite:false, side:THREE.DoubleSide })
+  );
+  haloMesh.rotation.x = Math.PI/2;
+  scene.add(haloMesh);
+
+  // ── Mouse ─────────────────────────────────────────────────────
+  const mouse = {x:0,y:0}, sm = {x:0,y:0};
+  window.addEventListener('mousemove', e=>{
+    mouse.x = (e.clientX/innerWidth  - 0.5)*2;
+    mouse.y = -(e.clientY/innerHeight - 0.5)*2;
+  });
+
+  // ── Animation loop ────────────────────────────────────────────
+  const clock = new THREE.Clock();
+  let currentReveal = 0;
+
+  function animate() {
+    requestAnimationFrame(animate);
+    const delta = Math.min(clock.getDelta(), 0.05);
+
+    sm.x += (mouse.x - sm.x)*0.04;
+    sm.y += (mouse.y - sm.y)*0.04;
+
+    currentReveal += ((window._revealTarget||0) - currentReveal)*0.04;
+
+    // cutY: starts at TOP_Y (nothing revealed), moves to BOT_Y (fully revealed)
+    const cutY = TOP_Y + (BOT_Y - TOP_Y) * currentReveal;
+
+    // Update clip planes
+    outerClip.constant =  cutY;   // outer shows where y <=  cutY
+    wireClip.constant  = -cutY;   // wires  show where y >= -(-cutY) = cutY
+
+    // Position cut indicators
+    xsDisc.position.y   = cutY;
+    cutRing.position.y  = cutY;
+    haloMesh.position.y = cutY;
+
+    // Point lights
+    cutLightA.position.set( 0.3, cutY+0.4, 2.0);
+    cutLightB.position.set(-0.2, cutY-0.2, 1.5);
+    const glow = Math.min(1, currentReveal * 4);
+    cutLightA.intensity = glow * 6.0;
+    cutLightB.intensity = glow * 3.5;
+    haloMesh.material.opacity = glow * 0.07;
+
+    // Hide indicators when nothing revealed
+    const showCut = currentReveal > 0.005;
+    xsDisc.visible = cutRing.visible = haloMesh.visible = showCut;
+
+    // Subtle camera drift
+    camera.position.x += (sm.x*1.2 - camera.position.x)*0.025;
+    camera.position.y += (sm.y*0.5 + 2.5 - camera.position.y)*0.025;
+    camera.lookAt(0, 0, 0);
+
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', ()=>{
+    const w = innerWidth, h = innerHeight;
+    camera.aspect = w/h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h);
+  });
+})();
+</script>
+
+
+</body></html>
