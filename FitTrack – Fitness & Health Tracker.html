@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<!-- saved from url=(0038)file:///C:/Users/User/fitness-app.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FitTrack – Fitness &amp; Health Tracker</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d1a;--bg2:#13132b;
+  --glass:rgba(255,255,255,0.04);--gb:rgba(255,255,255,0.08);
+  --pu:#7c3aed;--vi:#a855f7;--pk:#ec4899;
+  --bl:#3b82f6;--gr:#10b981;--ye:#f59e0b;--re:#ef4444;
+  --tx:#e8e8f4;--mu:#8888aa;--dim:#2a2a4a;
+  --glow:rgba(124,58,237,0.2);--r:16px;--rs:10px;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--tx);
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  min-height:100vh;
+  background-image:
+    radial-gradient(ellipse at 18% 8%,rgba(124,58,237,.13) 0%,transparent 52%),
+    radial-gradient(ellipse at 82% 92%,rgba(168,85,247,.08) 0%,transparent 50%);
+}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--dim);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--pu)}
+
+.card{background:var(--glass);border:1px solid var(--gb);border-radius:var(--r);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px)}
+.wrap{max-width:1120px;margin:0 auto;padding:26px 18px}
+
+/* ── Header ── */
+.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;padding-bottom:20px;border-bottom:1px solid var(--gb)}
+.hlogo{display:flex;align-items:center;gap:13px}
+.lbox{width:44px;height:44px;background:linear-gradient(135deg,var(--pu),var(--vi));border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 0 26px var(--glow),0 4px 14px rgba(0,0,0,.3)}
+.hdr h1{font-size:1.42rem;font-weight:800;letter-spacing:-.5px}
+.hdr h1 span{background:linear-gradient(135deg,var(--vi),var(--pk));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hright{display:flex;align-items:center;gap:14px}
+.streak{display:flex;align-items:center;gap:9px;background:rgba(124,58,237,.14);border:1px solid rgba(124,58,237,.28);border-radius:11px;padding:8px 14px}
+.snum{font-size:1.25rem;font-weight:900;color:var(--vi)}
+.slbl{font-size:.68rem;color:var(--mu);text-transform:uppercase;letter-spacing:.8px}
+.hdate{font-size:.78rem;color:var(--mu)}
+
+/* ── Tabs ── */
+.tabs{display:flex;gap:4px;background:rgba(0,0,0,.32);border:1px solid var(--gb);border-radius:13px;padding:4px;margin-bottom:22px;overflow-x:auto}
+.tab{flex:1;padding:10px 14px;border:none;background:transparent;color:var(--mu);font-size:.84rem;font-weight:700;border-radius:10px;cursor:pointer;transition:all .2s;white-space:nowrap;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px}
+.tab.on{background:linear-gradient(135deg,var(--pu),var(--vi));color:#fff;box-shadow:0 4px 18px var(--glow)}
+.tab:not(.on):hover{background:rgba(255,255,255,.05);color:var(--tx)}
+.tc{display:none}.tc.on{display:block}
+
+/* ── Quote ── */
+.qcard{padding:20px 26px;margin-bottom:20px;background:linear-gradient(135deg,rgba(124,58,237,.14),rgba(168,85,247,.09));border:1px solid rgba(124,58,237,.24);position:relative;overflow:hidden}
+.qcard::before{content:'"';position:absolute;top:-12px;left:14px;font-size:5.5rem;color:var(--pu);opacity:.18;font-family:Georgia,serif;line-height:1;pointer-events:none}
+.qtxt{font-size:.98rem;font-weight:500;line-height:1.65;font-style:italic}
+.qauth{font-size:.75rem;color:var(--vi);margin-top:8px;font-weight:700}
+
+/* ── Rings grid ── */
+.rings{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:18px}
+.rcard{padding:20px 14px;text-align:center;transition:transform .2s}
+.rcard:hover{transform:translateY(-3px)}
+.rwrap{position:relative;width:92px;height:92px;margin:0 auto 11px}
+.rsvg{transform:rotate(-90deg)}
+.rbg{fill:none;stroke:rgba(255,255,255,.06);stroke-width:7}
+.rfg{fill:none;stroke-width:7;stroke-linecap:round;transition:stroke-dashoffset 1s cubic-bezier(.4,0,.2,1)}
+.rval{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.rnum{font-size:1.05rem;font-weight:900;line-height:1}
+.runit{font-size:.6rem;color:var(--mu);margin-top:1px}
+.rlbl{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--mu)}
+.rgoal{font-size:.68rem;color:var(--dim);margin-top:3px}
+
+/* ── Daily inputs ── */
+.dinputs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.dcard{padding:14px}
+.dlbl{font-size:.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--mu);margin-bottom:7px}
+.drow{display:flex;align-items:center;gap:6px}
+.drow input{flex:1;padding:8px 10px;background:rgba(0,0,0,.3);border:1px solid var(--gb);border-radius:8px;color:var(--tx);font-size:.9rem;font-weight:700;outline:none;font-family:inherit;-webkit-appearance:none;transition:border-color .2s,box-shadow .2s}
+.drow input:focus{border-color:var(--pu);box-shadow:0 0 0 3px var(--glow)}
+.bsm{width:30px;height:30px;border:none;background:rgba(124,58,237,.2);border-radius:8px;color:var(--vi);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;font-family:inherit}
+.bsm:hover{background:rgba(124,58,237,.4)}
+
+/* ── Workout layout ── */
+.wgrid{display:grid;grid-template-columns:360px 1fr;gap:20px}
+.catg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.cbtn{padding:12px 8px;border:1px solid var(--gb);background:transparent;border-radius:10px;color:var(--mu);font-size:.8rem;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit}
+.cbtn:hover{border-color:var(--pu);color:var(--tx)}
+.cbtn.on{background:rgba(124,58,237,.2);border-color:var(--pu);color:var(--vi)}
+
+/* ── Form card ── */
+.fcard{padding:24px;height:fit-content}
+.fcard h2{font-size:.9rem;font-weight:800;margin-bottom:16px;display:flex;align-items:center;gap:9px}
+.fbadge{width:26px;height:26px;background:rgba(124,58,237,.2);border:1px solid rgba(124,58,237,.4);border-radius:7px;color:var(--vi);font-size:17px;display:flex;align-items:center;justify-content:center;font-weight:900;flex-shrink:0}
+.fg{margin-bottom:12px}
+.fg label{display:block;font-size:.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--mu);margin-bottom:5px}
+.fg input,.fg select{width:100%;padding:10px 12px;background:rgba(0,0,0,.3);border:1px solid var(--gb);border-radius:9px;color:var(--tx);font-size:.88rem;font-family:inherit;outline:none;-webkit-appearance:none;transition:border-color .2s,box-shadow .2s}
+.fg input:focus,.fg select:focus{border-color:var(--pu);box-shadow:0 0 0 3px var(--glow)}
+.fg select option{background:#1a1a36}
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btnp{width:100%;padding:12px;background:linear-gradient(135deg,var(--pu),var(--vi));border:none;border-radius:10px;color:#fff;font-size:.9rem;font-weight:800;cursor:pointer;letter-spacing:.4px;transition:all .2s;box-shadow:0 4px 22px var(--glow);font-family:inherit;margin-top:4px}
+.btnp:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(124,58,237,.42)}
+.btnp:active{transform:translateY(0)}
+
+/* ── Workout list ── */
+.wlcard{padding:20px}
+.wlcard h3{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--mu);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.wbadge{background:rgba(124,58,237,.2);color:var(--vi);padding:2px 9px;border-radius:20px;font-size:.67rem;font-weight:800}
+.wlist{display:flex;flex-direction:column;gap:7px;max-height:400px;overflow-y:auto;padding-right:2px}
+
+@keyframes inY{from{opacity:0;transform:translateY(-9px)}to{opacity:1;transform:translateY(0)}}
+@keyframes outX{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(-16px)}}
+
+.wi{display:flex;align-items:center;gap:12px;padding:11px 14px;background:rgba(0,0,0,.22);border:1px solid var(--gb);border-radius:10px;transition:border-color .15s;animation:inY .28s ease}
+.wi:hover{border-color:rgba(124,58,237,.3)}
+.wi.rm{animation:outX .24s ease forwards}
+.wicon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.winfo{flex:1;min-width:0}
+.wname{font-size:.85rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wmeta{font-size:.71rem;color:var(--mu);margin-top:2px}
+.wdel{width:28px;height:28px;border:1px solid var(--gb);background:transparent;border-radius:7px;color:var(--mu);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.wdel:hover{background:rgba(239,68,68,.16);border-color:var(--re);color:var(--re)}
+
+.empty{text-align:center;padding:36px 20px;color:var(--mu)}
+.ei{font-size:2.8rem;margin-bottom:10px;opacity:.22}
+.empty p{font-size:.81rem;line-height:1.65}
+
+/* ── History ── */
+.hgrid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.chcard{padding:20px 22px}
+.chcard h3{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--mu);margin-bottom:14px}
+.cwrap{position:relative;height:195px}
+
+.hday{margin-bottom:14px}
+.hdhead{font-size:.78rem;font-weight:700;color:var(--vi);margin-bottom:6px;display:flex;align-items:center;justify-content:space-between}
+.hdct{font-size:.68rem;color:var(--mu);font-weight:400}
+.hditems{display:flex;flex-direction:column;gap:4px}
+.hdi{padding:8px 12px;background:rgba(0,0,0,.2);border:1px solid var(--gb);border-radius:8px;font-size:.78rem;display:flex;align-items:center;gap:8px}
+
+/* ── Body stats ── */
+.bgrid{display:grid;grid-template-columns:360px 1fr;gap:20px}
+.bform{padding:24px;height:fit-content}
+.bmidisp{margin:14px 0;padding:16px;background:rgba(0,0,0,.22);border:1px solid var(--gb);border-radius:11px;text-align:center}
+.bmival{font-size:2.1rem;font-weight:900;margin-bottom:4px}
+.bmicat{font-size:.82rem;font-weight:700}
+.bmiscale{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:12px}
+.bmiseg{padding:5px 2px;border-radius:7px;font-size:.6rem;font-weight:700;text-align:center;opacity:.5;transition:opacity .3s,transform .2s}
+.bmiseg.on{opacity:1;transform:scale(1.06)}
+
+.wscard{padding:20px 22px}
+.wscard h3{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--mu);margin-bottom:14px}
+.wlog{display:flex;flex-direction:column;gap:7px;max-height:280px;overflow-y:auto}
+.wli{display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(0,0,0,.2);border:1px solid var(--gb);border-radius:9px;font-size:.81rem;animation:inY .28s ease}
+.wlidate{color:var(--mu);font-size:.7rem;min-width:72px}
+.wliwt{font-weight:900;font-size:1rem}
+.wlibmi{font-size:.72rem}
+.wlidel{margin-left:auto;width:24px;height:24px;border:1px solid var(--gb);background:transparent;border-radius:6px;color:var(--mu);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.wlidel:hover{background:rgba(239,68,68,.16);border-color:var(--re);color:var(--re)}
+
+/* ── Toast ── */
+.toasts{position:fixed;bottom:24px;right:24px;z-index:999;display:flex;flex-direction:column;gap:8px}
+.toast{padding:11px 18px;background:rgba(13,13,26,.96);border:1px solid var(--gb);border-radius:10px;font-size:.82rem;backdrop-filter:blur(20px);animation:inY .28s ease;display:flex;align-items:center;gap:8px;box-shadow:0 8px 28px rgba(0,0,0,.4)}
+.toast.ok{border-left:3px solid var(--vi)}
+.toast.err{border-left:3px solid var(--re)}
+
+/* ── Responsive ── */
+@media(max-width:960px){.wgrid,.bgrid{grid-template-columns:1fr}.fcard{position:static}}
+@media(max-width:750px){.hgrid{grid-template-columns:1fr}.rings{grid-template-columns:repeat(2,1fr)}.dinputs{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.wrap{padding:14px 12px}.hdr h1{font-size:1.1rem}.tabs{gap:2px}.tab{padding:9px 8px;font-size:.76rem}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- Header -->
+<header class="hdr">
+  <div class="hlogo">
+    <div class="lbox">💪</div>
+    <h1>Fit<span>Track</span></h1>
+  </div>
+  <div class="hright">
+    <div class="streak">
+      <span style="font-size:20px">🔥</span>
+      <div><div class="snum" id="snum">0</div><div class="slbl">Day Streak</div></div>
+    </div>
+    <div class="hdate" id="hdate">Monday, June 8, 2026</div>
+  </div>
+</header>
+
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab on" onclick="goTab(&#39;dash&#39;,this)">🏠 Dashboard</button>
+  <button class="tab" onclick="goTab(&#39;workout&#39;,this)">💪 Workout</button>
+  <button class="tab" onclick="goTab(&#39;history&#39;,this)">📅 History</button>
+  <button class="tab" onclick="goTab(&#39;body&#39;,this)">⚖️ Body Stats</button>
+</div>
+
+<!-- ════ DASHBOARD ════ -->
+<div class="tc on" id="tc-dash">
+  <div class="card qcard" style="margin-bottom:20px">
+    <div class="qtxt" id="qtxt">No matter how slow you go, you are still lapping everybody on the couch.</div>
+    <div class="qauth" id="qauth">— Unknown</div>
+  </div>
+
+  <div class="rings">
+    <div class="card rcard">
+      <div class="rwrap">
+        <svg class="rsvg" width="92" height="92" viewBox="0 0 92 92">
+          <circle class="rbg" cx="46" cy="46" r="38"></circle>
+          <circle class="rfg" id="rg-steps" cx="46" cy="46" r="38" stroke="#7c3aed" stroke-dasharray="238.76" stroke-dashoffset="238.76" style="stroke-dashoffset: 238.666;"></circle>
+        </svg>
+        <div class="rval"><span class="rnum" id="rv-steps" style="color:#7c3aed">4</span><span class="runit">steps</span></div>
+      </div>
+      <div class="rlbl">👟 Steps</div><div class="rgoal" id="rgoal-steps">/ 10,000</div>
+    </div>
+    <div class="card rcard">
+      <div class="rwrap">
+        <svg class="rsvg" width="92" height="92" viewBox="0 0 92 92">
+          <circle class="rbg" cx="46" cy="46" r="38"></circle>
+          <circle class="rfg" id="rg-calories" cx="46" cy="46" r="38" stroke="#ec4899" stroke-dasharray="238.76" stroke-dashoffset="238.76" style="stroke-dashoffset: 238.761;"></circle>
+        </svg>
+        <div class="rval"><span class="rnum" id="rv-calories" style="color:#ec4899">0</span><span class="runit">kcal</span></div>
+      </div>
+      <div class="rlbl">🔥 Calories</div><div class="rgoal" id="rgoal-calories">/ 2,000</div>
+    </div>
+    <div class="card rcard">
+      <div class="rwrap">
+        <svg class="rsvg" width="92" height="92" viewBox="0 0 92 92">
+          <circle class="rbg" cx="46" cy="46" r="38"></circle>
+          <circle class="rfg" id="rg-water" cx="46" cy="46" r="38" stroke="#3b82f6" stroke-dasharray="238.76" stroke-dashoffset="238.76" style="stroke-dashoffset: 238.761;"></circle>
+        </svg>
+        <div class="rval"><span class="rnum" id="rv-water" style="color:#3b82f6">0</span><span class="runit">glasses</span></div>
+      </div>
+      <div class="rlbl">💧 Water</div><div class="rgoal" id="rgoal-water">/ 8</div>
+    </div>
+    <div class="card rcard">
+      <div class="rwrap">
+        <svg class="rsvg" width="92" height="92" viewBox="0 0 92 92">
+          <circle class="rbg" cx="46" cy="46" r="38"></circle>
+          <circle class="rfg" id="rg-sleep" cx="46" cy="46" r="38" stroke="#10b981" stroke-dasharray="238.76" stroke-dashoffset="238.76" style="stroke-dashoffset: 238.761;"></circle>
+        </svg>
+        <div class="rval"><span class="rnum" id="rv-sleep" style="color:#10b981">0</span><span class="runit">hrs</span></div>
+      </div>
+      <div class="rlbl">😴 Sleep</div><div class="rgoal" id="rgoal-sleep">/ 8 hrs</div>
+    </div>
+  </div>
+
+  <div class="dinputs">
+    <div class="card dcard"><div class="dlbl">👟 Steps Today</div><div class="drow"><input type="number" id="d-steps" placeholder="0" min="0"><button class="bsm" onclick="saveD(&#39;steps&#39;)">✓</button></div></div>
+    <div class="card dcard"><div class="dlbl">🔥 Calories Burned</div><div class="drow"><input type="number" id="d-calories" placeholder="0" min="0"><button class="bsm" onclick="saveD(&#39;calories&#39;)">✓</button></div></div>
+    <div class="card dcard"><div class="dlbl">💧 Water (glasses)</div><div class="drow"><input type="number" id="d-water" placeholder="0" min="0" max="30"><button class="bsm" onclick="saveD(&#39;water&#39;)">✓</button></div></div>
+    <div class="card dcard"><div class="dlbl">😴 Sleep (hours)</div><div class="drow"><input type="number" id="d-sleep" placeholder="0" min="0" max="24" step="0.5"><button class="bsm" onclick="saveD(&#39;sleep&#39;)">✓</button></div></div>
+  </div>
+</div>
+
+<!-- ════ WORKOUT ════ -->
+<div class="tc" id="tc-workout">
+  <div class="wgrid">
+    <div class="card fcard">
+      <h2><span class="fbadge">+</span> Log Exercise</h2>
+      <div class="catg">
+        <button class="cbtn on" data-cat="Strength" onclick="setCat(this)">🏋️ Strength</button>
+        <button class="cbtn" data-cat="Cardio" onclick="setCat(this)">🏃 Cardio</button>
+        <button class="cbtn" data-cat="Flexibility" onclick="setCat(this)">🧘 Flexibility</button>
+        <button class="cbtn" data-cat="Sports" onclick="setCat(this)">⚽ Sports</button>
+      </div>
+      <div class="fg"><label>Exercise Name</label><input type="text" id="wname" placeholder="e.g. Bench Press, Running…"></div>
+      <div class="fr2">
+        <div class="fg"><label>Sets</label><input type="number" id="wsets" placeholder="3" min="1"></div>
+        <div class="fg"><label>Reps</label><input type="number" id="wreps" placeholder="10" min="1"></div>
+      </div>
+      <div class="fr2">
+        <div class="fg"><label>Weight (kg)</label><input type="number" id="wwt" placeholder="0" min="0" step="0.5"></div>
+        <div class="fg"><label>Duration (min)</label><input type="number" id="wdur" placeholder="30" min="1"></div>
+      </div>
+      <button class="btnp" onclick="addWk()">Log Exercise 💪</button>
+    </div>
+    <div class="card wlcard">
+      <h3>Today's Workout <span class="wbadge" id="wct">0</span></h3>
+      <div class="wlist" id="wlist"><div class="empty"><div class="ei">🏋️</div><p>No exercises logged today.<br>Start your workout!</p></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ HISTORY ════ -->
+<div class="tc" id="tc-history">
+  <div class="hgrid">
+    <div class="card chcard">
+      <h3>📊 Workouts — Last 7 Days</h3>
+      <div class="cwrap"><canvas id="weekChart" width="468" height="233"></canvas></div>
+    </div>
+    <div class="card chcard">
+      <h3>📋 Recent Sessions</h3>
+      <div id="hlist" style="max-height:260px;overflow-y:auto"><div class="empty"><div class="ei">📅</div><p>No workout history yet.<br>Log your first session!</p></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ BODY STATS ════ -->
+<div class="tc" id="tc-body">
+  <div class="bgrid">
+    <div class="card bform">
+      <h2><span class="fbadge" style="font-size:15px">⚖</span> Log Weight</h2>
+      <div class="fr2">
+        <div class="fg"><label>Weight (kg)</label><input type="number" id="bwt" placeholder="70.0" step="0.1" min="20" oninput="liveCalcBMI()"></div>
+        <div class="fg"><label>Height (cm)</label><input type="number" id="bht" placeholder="175" min="100" max="250" oninput="liveCalcBMI()"></div>
+      </div>
+      <div class="bmidisp">
+        <div class="bmival" id="bmival" style="color:var(--vi)">—</div>
+        <div class="bmicat" id="bmicat" style="color:var(--mu)">Enter your stats above</div>
+        <div class="bmiscale">
+          <div class="bmiseg" id="bs0" style="background:rgba(59,130,246,.18);color:#3b82f6">Under<br>weight</div>
+          <div class="bmiseg" id="bs1" style="background:rgba(16,185,129,.18);color:#10b981">Normal</div>
+          <div class="bmiseg" id="bs2" style="background:rgba(245,158,11,.18);color:#f59e0b">Over<br>weight</div>
+          <div class="bmiseg" id="bs3" style="background:rgba(239,68,68,.18);color:#ef4444">Obese</div>
+        </div>
+      </div>
+      <button class="btnp" onclick="logWt()">Save Stats ⚖️</button>
+    </div>
+    <div>
+      <div class="card wscard" style="margin-bottom:16px">
+        <h3>📈 Weight History</h3>
+        <div class="cwrap"><canvas id="wtChart" width="468" height="233"></canvas></div>
+      </div>
+      <div class="card wscard">
+        <h3>🗒 Log</h3>
+        <div class="wlog" id="wtlog"><div class="empty"><div class="ei">⚖️</div><p>No weight entries yet.</p></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+<div class="toasts" id="toasts"></div>
+
+<script>
+/* ── Constants ─────────────────────────────────────────────── */
+const LS  = 'fitTrack_v2';
+const C   = 2*Math.PI*38; // circumference for r=38 ≈ 238.76
+const TODAY = new Date().toISOString().split('T')[0];
+
+const QUOTES = [
+  {t:"The only bad workout is the one that didn't happen.",a:"Unknown"},
+  {t:"Your body can stand almost anything. It's your mind you have to convince.",a:"Unknown"},
+  {t:"Take care of your body. It's the only place you have to live.",a:"Jim Rohn"},
+  {t:"Don't wish for it. Work for it.",a:"Unknown"},
+  {t:"The pain you feel today will be the strength you feel tomorrow.",a:"Unknown"},
+  {t:"No matter how slow you go, you are still lapping everybody on the couch.",a:"Unknown"},
+  {t:"Fitness is not about being better than someone else — it's about being better than you used to be.",a:"Unknown"},
+  {t:"Push yourself because no one else is going to do it for you.",a:"Unknown"},
+  {t:"Strength does not come from the body. It comes from the will of the soul.",a:"Mahatma Gandhi"},
+  {t:"You don't have to be great to start, but you have to start to be great.",a:"Zig Ziglar"},
+  {t:"If you think lifting weights is dangerous, try being weak. Being weak is dangerous.",a:"Bret Contreras"},
+  {t:"Every champion was once a contender that refused to give up.",a:"Rocky Balboa"},
+  {t:"Success is what happens after you have survived all your mistakes.",a:"Anora Lee"},
+  {t:"Energy and persistence conquer all things.",a:"Benjamin Franklin"},
+];
+
+const CATS = {
+  Strength:    {icon:'🏋️', color:'#7c3aed'},
+  Cardio:      {icon:'🏃', color:'#ec4899'},
+  Flexibility: {icon:'🧘', color:'#10b981'},
+  Sports:      {icon:'⚽', color:'#f59e0b'},
+};
+
+const GOALS = {steps:10000, calories:2000, water:8, sleep:8};
+
+/* ── State ─────────────────────────────────────────────────── */
+let D = {daily:{}, workouts:[], weights:[]};
+let wkCat = 'Strength';
+let _weekChart = null, _wtChart = null;
+
+/* ── Boot ──────────────────────────────────────────────────── */
+function init(){
+  const s = localStorage.getItem(LS);
+  if(s) try { D = {...D,...JSON.parse(s)}; } catch(e){}
+
+  // Date header
+  document.getElementById('hdate').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+  // Daily quote (deterministic by day-of-year)
+  const doy = Math.floor((new Date() - new Date(new Date().getFullYear(),0,0)) / 86400000);
+  const q = QUOTES[doy % QUOTES.length];
+  document.getElementById('qtxt').textContent  = q.t;
+  document.getElementById('qauth').textContent = '— ' + q.a;
+
+  // Pre-fill daily inputs
+  const td = todayD();
+  ['steps','calories','water','sleep'].forEach(k => {
+    const el = document.getElementById('d-'+k);
+    if(el && td[k]) el.value = td[k];
+  });
+
+  renderRings();
+  renderWorkouts();
+  calcStreak();
+  renderHistory();
+  renderWtLog();
+  prefillBody();
+}
+
+/* ── Persist ───────────────────────────────────────────────── */
+function save(){ localStorage.setItem(LS, JSON.stringify(D)); }
+
+/* ── Tabs ──────────────────────────────────────────────────── */
+function goTab(id, btn){
+  document.querySelectorAll('.tc').forEach(e=>e.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(e=>e.classList.remove('on'));
+  document.getElementById('tc-'+id).classList.add('on');
+  btn.classList.add('on');
+  if(id==='history'){ renderHistory(); drawWeekChart(); }
+  if(id==='body')   { renderWtLog();   drawWtChart();   }
+}
+
+/* ── Daily data ────────────────────────────────────────────── */
+function todayD(){
+  if(!D.daily[TODAY]) D.daily[TODAY]={steps:0,calories:0,water:0,sleep:0};
+  return D.daily[TODAY];
+}
+function saveD(key){
+  const v = parseFloat(document.getElementById('d-'+key).value)||0;
+  todayD()[key]=v; save(); renderRings();
+  toast('Updated!','ok');
+}
+
+/* ── Progress rings ────────────────────────────────────────── */
+function renderRings(){
+  const td=todayD();
+  [['steps',10000],['calories',2000],['water',8],['sleep',8]].forEach(([k,g])=>{
+    const v = td[k]||0;
+    const pct = Math.min(v/g,1);
+    const el = document.getElementById('rg-'+k);
+    if(el) el.style.strokeDashoffset = C*(1-pct);
+    const rv = document.getElementById('rv-'+k);
+    if(rv) rv.textContent = k==='steps' ? v.toLocaleString() : v;
+  });
+}
+
+/* ── Workout cat ───────────────────────────────────────────── */
+function setCat(btn){
+  document.querySelectorAll('.cbtn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  wkCat = btn.dataset.cat;
+}
+
+/* ── Add workout ───────────────────────────────────────────── */
+function addWk(){
+  const name = document.getElementById('wname').value.trim();
+  if(!name){toast('Enter an exercise name.','err');return;}
+  const sets = parseInt(document.getElementById('wsets').value)||0;
+  const reps = parseInt(document.getElementById('wreps').value)||0;
+  const wt   = parseFloat(document.getElementById('wwt').value)||0;
+  const dur  = parseInt(document.getElementById('wdur').value)||0;
+  D.workouts.unshift({id:Date.now(),date:TODAY,name,category:wkCat,sets,reps,weight:wt,duration:dur});
+  save(); renderWorkouts(); calcStreak();
+  ['wname','wsets','wreps','wwt','wdur'].forEach(id=>document.getElementById(id).value='');
+  toast('Exercise logged! 💪','ok');
+}
+
+/* ── Delete workout ────────────────────────────────────────── */
+function delWk(id){
+  const el=document.getElementById('wi'+id);
+  if(!el)return;
+  el.classList.add('rm');
+  setTimeout(()=>{D.workouts=D.workouts.filter(w=>w.id!==id);save();renderWorkouts();calcStreak();},240);
+}
+
+/* ── Render workout list ───────────────────────────────────── */
+function renderWorkouts(){
+  const today=D.workouts.filter(w=>w.date===TODAY);
+  document.getElementById('wct').textContent=today.length;
+  const el=document.getElementById('wlist');
+  if(!today.length){
+    el.innerHTML=`<div class="empty"><div class="ei">🏋️</div><p>No exercises logged today.<br>Start your workout!</p></div>`;
+    return;
+  }
+  el.innerHTML=today.map(w=>{
+    const cat=CATS[w.category]||CATS.Strength;
+    const parts=[];
+    if(w.sets&&w.reps) parts.push(`${w.sets}×${w.reps}`);
+    else if(w.sets)    parts.push(`${w.sets} sets`);
+    if(w.weight)       parts.push(`${w.weight}kg`);
+    if(w.duration)     parts.push(`${w.duration}min`);
+    return `<div class="wi" id="wi${w.id}">
+      <div class="wicon" style="background:${cat.color}22;color:${cat.color}">${cat.icon}</div>
+      <div class="winfo">
+        <div class="wname">${esc(w.name)}</div>
+        <div class="wmeta">${w.category}${parts.length?' · '+parts.join(' · '):''}</div>
+      </div>
+      <button class="wdel" onclick="delWk(${w.id})">✕</button>
+    </div>`;
+  }).join('');
+}
+
+/* ── Streak ────────────────────────────────────────────────── */
+function calcStreak(){
+  const days=[...new Set(D.workouts.map(w=>w.date))].sort().reverse();
+  let streak=0;
+  const now=new Date(TODAY);
+  for(let i=0;i<days.length;i++){
+    const diff=Math.round((now-new Date(days[i]))/86400000);
+    if(diff===i) streak++; else break;
+  }
+  document.getElementById('snum').textContent=streak;
+}
+
+/* ── History ───────────────────────────────────────────────── */
+function renderHistory(){
+  const byDay={};
+  D.workouts.forEach(w=>{(byDay[w.date]=byDay[w.date]||[]).push(w);});
+  const days=Object.keys(byDay).sort().reverse().slice(0,14);
+  const el=document.getElementById('hlist');
+  if(!days.length){
+    el.innerHTML=`<div class="empty"><div class="ei">📅</div><p>No workout history yet.<br>Log your first session!</p></div>`;
+    return;
+  }
+  el.innerHTML=days.map(day=>{
+    const items=byDay[day];
+    const d=new Date(day+'T12:00:00');
+    const lbl=d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+    return `<div class="hday">
+      <div class="hdhead">${lbl}<span class="hdct">${items.length} exercise${items.length>1?'s':''}</span></div>
+      <div class="hditems">${items.map(w=>{
+        const cat=CATS[w.category]||CATS.Strength;
+        const p=[];
+        if(w.sets&&w.reps)p.push(`${w.sets}×${w.reps}`);
+        if(w.weight)p.push(`${w.weight}kg`);
+        if(w.duration)p.push(`${w.duration}min`);
+        return `<div class="hdi"><span style="color:${cat.color}">${cat.icon}</span><span>${esc(w.name)}</span><span style="color:var(--mu);font-size:.68rem;margin-left:auto">${p.join(' · ')}</span></div>`;
+      }).join('')}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ── Canvas charts (no library) ────────────────────────────── */
+function drawWeekChart(){
+  const canvas=document.getElementById('weekChart');
+  const ctx=canvas.getContext('2d');
+  const dpr=window.devicePixelRatio||1;
+  const W=canvas.offsetWidth, H=canvas.offsetHeight;
+  canvas.width=W*dpr; canvas.height=H*dpr; ctx.scale(dpr,dpr);
+
+  const labels=[], vals=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date(); d.setDate(d.getDate()-i);
+    const key=d.toISOString().split('T')[0];
+    labels.push(d.toLocaleDateString('en-US',{weekday:'short'}));
+    vals.push(D.workouts.filter(w=>w.date===key).length);
+  }
+
+  const pad={t:24,r:16,b:34,l:32};
+  const cW=W-pad.l-pad.r, cH=H-pad.t-pad.b;
+  const max=Math.max(...vals,1);
+  ctx.font=`10px 'Segoe UI',system-ui,sans-serif`;
+
+  // Grid
+  for(let i=0;i<=max;i++){
+    const y=pad.t+cH-(i/max)*cH;
+    ctx.strokeStyle='rgba(255,255,255,0.05)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+cW,y);ctx.stroke();
+    ctx.fillStyle='rgba(136,136,170,.7)';ctx.textAlign='right';
+    ctx.fillText(i,pad.l-5,y+4);
+  }
+
+  // Bars
+  const gap=cW/labels.length;
+  const bw=Math.max(gap*.55,8);
+  labels.forEach((lbl,i)=>{
+    const x=pad.l+i*gap+gap/2;
+    const bh=vals[i]>0?(vals[i]/max)*cH:0;
+    const y=pad.t+cH-bh;
+    if(bh>0){
+      const g=ctx.createLinearGradient(0,y,0,pad.t+cH);
+      g.addColorStop(0,'#7c3aed');g.addColorStop(1,'rgba(124,58,237,.25)');
+      ctx.fillStyle=g;
+      const r=5;
+      ctx.beginPath();
+      ctx.moveTo(x-bw/2+r,y);ctx.lineTo(x+bw/2-r,y);
+      ctx.arcTo(x+bw/2,y,x+bw/2,y+r,r);
+      ctx.lineTo(x+bw/2,pad.t+cH);ctx.lineTo(x-bw/2,pad.t+cH);
+      ctx.arcTo(x-bw/2,y+r,x-bw/2+r,y,r);
+      ctx.closePath();ctx.fill();
+      ctx.fillStyle='#a855f7';ctx.textAlign='center';
+      ctx.fillText(vals[i],x,y-5);
+    }
+    ctx.fillStyle='rgba(136,136,170,.75)';ctx.textAlign='center';
+    ctx.fillText(lbl,x,pad.t+cH+16);
+  });
+}
+
+function drawWtChart(){
+  const canvas=document.getElementById('wtChart');
+  const ctx=canvas.getContext('2d');
+  const dpr=window.devicePixelRatio||1;
+  const W=canvas.offsetWidth, H=canvas.offsetHeight;
+  canvas.width=W*dpr; canvas.height=H*dpr; ctx.scale(dpr,dpr);
+
+  const sorted=[...D.weights].sort((a,b)=>a.date.localeCompare(b.date)).slice(-14);
+  if(sorted.length<2){
+    ctx.fillStyle='rgba(136,136,170,.4)';ctx.font=`13px 'Segoe UI',system-ui`;ctx.textAlign='center';
+    ctx.fillText(sorted.length===1?`${sorted[0].weight} kg`:'Log at least 2 entries to see chart',W/2,H/2);
+    return;
+  }
+  const pad={t:20,r:18,b:34,l:46};
+  const cW=W-pad.l-pad.r, cH=H-pad.t-pad.b;
+  const vals=sorted.map(w=>w.weight);
+  const mn=Math.min(...vals)-2, mx=Math.max(...vals)+2, range=mx-mn||1;
+  ctx.font=`10px 'Segoe UI',system-ui,sans-serif`;
+
+  for(let i=0;i<=4;i++){
+    const y=pad.t+(i/4)*cH;
+    const v=(mx-(i/4)*range).toFixed(1);
+    ctx.strokeStyle='rgba(255,255,255,0.05)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+cW,y);ctx.stroke();
+    ctx.fillStyle='rgba(136,136,170,.7)';ctx.textAlign='right';
+    ctx.fillText(v,pad.l-5,y+4);
+  }
+
+  const pts=vals.map((v,i)=>({
+    x:pad.l+(i/(vals.length-1))*cW,
+    y:pad.t+((mx-v)/range)*cH
+  }));
+
+  // Fill
+  const g=ctx.createLinearGradient(0,pad.t,0,pad.t+cH);
+  g.addColorStop(0,'rgba(168,85,247,.38)');g.addColorStop(1,'rgba(168,85,247,0)');
+  ctx.beginPath();ctx.moveTo(pts[0].x,pad.t+cH);
+  pts.forEach(p=>ctx.lineTo(p.x,p.y));
+  ctx.lineTo(pts[pts.length-1].x,pad.t+cH);ctx.closePath();
+  ctx.fillStyle=g;ctx.fill();
+
+  // Line
+  ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);
+  for(let i=1;i<pts.length;i++){
+    const mx2=(pts[i-1].x+pts[i].x)/2;
+    ctx.bezierCurveTo(mx2,pts[i-1].y,mx2,pts[i].y,pts[i].x,pts[i].y);
+  }
+  ctx.strokeStyle='#a855f7';ctx.lineWidth=2.5;ctx.stroke();
+
+  // Dots + labels
+  pts.forEach((p,i)=>{
+    ctx.beginPath();ctx.arc(p.x,p.y,4,0,Math.PI*2);
+    ctx.fillStyle='#a855f7';ctx.fill();
+    ctx.strokeStyle='#0d0d1a';ctx.lineWidth=2;ctx.stroke();
+    const lbl=new Date(sorted[i].date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    ctx.fillStyle='rgba(136,136,170,.75)';ctx.textAlign='center';ctx.font=`9px 'Segoe UI',system-ui`;
+    ctx.fillText(lbl,p.x,pad.t+cH+15);
+  });
+}
+
+/* ── Body stats ────────────────────────────────────────────── */
+function liveCalcBMI(){
+  const wt=parseFloat(document.getElementById('bwt').value);
+  const ht=parseFloat(document.getElementById('bht').value);
+  if(!wt||!ht||ht<50)return;
+  const bmi=wt/((ht/100)**2);
+  const el=document.getElementById('bmival');
+  el.textContent=bmi.toFixed(1);
+  const segs=['bs0','bs1','bs2','bs3'];
+  segs.forEach(s=>document.getElementById(s).classList.remove('on'));
+  let idx=1,color='#10b981',cat='Normal weight';
+  if(bmi<18.5){idx=0;color='#3b82f6';cat='Underweight';}
+  else if(bmi<25){idx=1;color='#10b981';cat='Normal weight';}
+  else if(bmi<30){idx=2;color='#f59e0b';cat='Overweight';}
+  else{idx=3;color='#ef4444';cat='Obese';}
+  el.style.color=color;
+  document.getElementById('bmicat').textContent=cat;
+  document.getElementById('bmicat').style.color=color;
+  document.getElementById(segs[idx]).classList.add('on');
+}
+
+function logWt(){
+  const wt=parseFloat(document.getElementById('bwt').value);
+  const ht=parseFloat(document.getElementById('bht').value);
+  if(!wt||wt<20){toast('Enter a valid weight.','err');return;}
+  if(!ht||ht<100){toast('Enter a valid height.','err');return;}
+  const bmi=wt/((ht/100)**2);
+  D.weights.push({id:Date.now(),date:TODAY,weight:wt,height:ht,bmi});
+  save(); renderWtLog(); drawWtChart();
+  toast('Stats saved! ⚖️','ok');
+}
+
+function delWtEntry(id){
+  D.weights=D.weights.filter(w=>w.id!==id);
+  save(); renderWtLog(); drawWtChart();
+}
+
+function renderWtLog(){
+  const sorted=[...D.weights].sort((a,b)=>b.date.localeCompare(a.date));
+  const el=document.getElementById('wtlog');
+  if(!sorted.length){
+    el.innerHTML=`<div class="empty"><div class="ei">⚖️</div><p>No weight entries yet.</p></div>`;
+    return;
+  }
+  el.innerHTML=sorted.map(w=>{
+    const ds=new Date(w.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    const c=w.bmi<18.5?'#3b82f6':w.bmi<25?'#10b981':w.bmi<30?'#f59e0b':'#ef4444';
+    return `<div class="wli">
+      <span class="wlidate">${ds}</span>
+      <span class="wliwt">${w.weight}kg</span>
+      <span class="wlibmi" style="color:${c}">BMI ${w.bmi.toFixed(1)}</span>
+      <button class="wlidel" onclick="delWtEntry(${w.id})">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function prefillBody(){
+  if(!D.weights.length)return;
+  const last=D.weights[D.weights.length-1];
+  document.getElementById('bwt').value=last.weight;
+  document.getElementById('bht').value=last.height;
+  liveCalcBMI();
+}
+
+/* ── Toast ─────────────────────────────────────────────────── */
+function toast(msg,cls='ok'){
+  const el=document.createElement('div');
+  el.className=`toast ${cls}`;
+  el.innerHTML=`<span>${cls==='ok'?'✓':'✕'}</span> ${msg}`;
+  document.getElementById('toasts').appendChild(el);
+  setTimeout(()=>el.remove(),3000);
+}
+
+/* ── XSS guard ─────────────────────────────────────────────── */
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+/* ── Redraw charts on resize ───────────────────────────────── */
+let _rt;
+window.addEventListener('resize',()=>{clearTimeout(_rt);_rt=setTimeout(()=>{
+  const active=document.querySelector('.tc.on');
+  if(!active)return;
+  if(active.id==='tc-history') drawWeekChart();
+  if(active.id==='tc-body')    drawWtChart();
+},200);});
+
+/* ── Start ─────────────────────────────────────────────────── */
+init();
+</script>
+
+
+</body></html>
