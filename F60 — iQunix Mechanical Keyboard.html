@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<!-- saved from url=(0035)file:///C:/Users/User/keyboard.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>F60 — iQunix Mechanical Keyboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link href="./F60 — iQunix Mechanical Keyboard_files/css2" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,sans-serif;overflow-x:hidden;background:#0a0810;color:#fff}
+
+/* ─── NAV ─── */
+#nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  padding:22px 52px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.nav-logo{font-size:10px;font-weight:700;letter-spacing:.34em;text-transform:uppercase;color:rgba(255,255,255,.45)}
+.nav-links{display:flex;gap:36px;list-style:none}
+.nav-links a{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.30);text-decoration:none;transition:color .2s;cursor:pointer}
+.nav-links a:hover{color:rgba(255,255,255,.75)}
+.nav-cta{
+  font-size:9px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);
+  color:rgba(255,255,255,.6);padding:10px 22px;border-radius:3px;cursor:pointer;
+  font-family:inherit;transition:background .2s,color .2s;
+}
+.nav-cta:hover{background:rgba(255,255,255,.14);color:#fff}
+
+/* ═══════════════════════════════════════════════════════════════
+   HERO — lavender gradient
+═══════════════════════════════════════════════════════════════ */
+#hero{
+  min-height:100vh;
+  background:linear-gradient(135deg,#cfc6f4 0%,#a8a0de 35%,#8880c8 65%,#6a66b4 100%);
+  position:relative;overflow:hidden;
+  display:flex;align-items:center;
+}
+#hero::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 55% 60% at 20% 40%,rgba(255,255,255,.20) 0%,transparent 65%);
+}
+#hero::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:220px;pointer-events:none;
+  background:linear-gradient(to bottom,transparent,rgba(80,60,160,.22));
+}
+
+/* ── Hero text ── */
+.hero-text{
+  position:relative;z-index:10;
+  padding:0 6vw;flex-shrink:0;
+  width:min(460px,46%);
+}
+.hero-kicker{font-size:9px;letter-spacing:.5em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:22px}
+.hero-title{
+  font-size:clamp(80px,12vw,152px);font-weight:900;font-style:italic;
+  line-height:.86;letter-spacing:-.05em;color:#fff;
+  text-shadow:0 6px 48px rgba(60,30,140,.35);margin-bottom:26px;
+}
+.hero-sub{font-size:clamp(15px,1.7vw,21px);font-weight:300;color:rgba(255,255,255,.68);letter-spacing:.02em;line-height:1.55;margin-bottom:36px}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:9px;
+  background:rgba(255,255,255,.16);backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.28);border-radius:100px;
+  padding:10px 20px;font-size:11px;font-weight:500;letter-spacing:.06em;
+  color:rgba(255,255,255,.88);margin-bottom:38px;
+}
+.hero-badge svg{width:13px;height:13px;fill:currentColor;flex-shrink:0}
+.hero-btns{display:flex;gap:10px;flex-wrap:wrap}
+.btn-primary{
+  font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;
+  background:rgba(40,18,100,.72);border:1px solid rgba(255,255,255,.18);
+  color:#fff;padding:15px 38px;border-radius:4px;cursor:pointer;
+  font-family:inherit;backdrop-filter:blur(6px);transition:background .22s,transform .18s;
+}
+.btn-primary:hover{background:rgba(70,30,160,.85);transform:translateY(-2px)}
+.btn-ghost{
+  font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:400;
+  background:transparent;border:1px solid rgba(255,255,255,.28);
+  color:rgba(255,255,255,.60);padding:15px 38px;border-radius:4px;cursor:pointer;
+  font-family:inherit;transition:border-color .22s,color .22s,transform .18s;
+}
+.btn-ghost:hover{border-color:rgba(255,255,255,.65);color:#fff;transform:translateY(-2px)}
+
+/* ── Keyboard zone (right side) ── */
+#kb-zone{
+  position:absolute;right:-2vw;top:50%;
+  width:55vw;pointer-events:none;
+}
+@keyframes floatKb{
+  0%,100%{transform:translateY(0px)}
+  50%    {transform:translateY(-18px)}
+}
+#kb-float{width:100%;animation:floatKb 4s ease-in-out infinite}
+#kb-3d{
+  width:100%;will-change:transform;
+  transform:perspective(1000px) translateY(-50%) rotateX(25deg) rotateY(-15deg) rotateZ(-5deg);
+}
+#kb-canvas-hero{
+  display:block;width:100%;
+  filter:drop-shadow(0 32px 64px rgba(20,0,80,.75)) drop-shadow(0 8px 20px rgba(60,20,120,.50));
+}
+
+/* ── Flying keycaps ── */
+@keyframes keycapFly{
+  0%  {transform:translateY(0px)   translateX(0px)   rotate(0deg)  scale(1);  opacity:1}
+  45% {transform:translateY(-80px) translateX(22px)  rotate(-22deg)scale(1.06);opacity:1}
+  100%{transform:translateY(-190px)translateX(55px)  rotate(-52deg)scale(.72);opacity:0}
+}
+.keycap{
+  position:absolute;z-index:20;pointer-events:none;
+  width:42px;height:42px;
+  background:linear-gradient(150deg,#2e2e2e 0%,#252525 55%,#1a1a1a 100%);
+  border-radius:7px;
+  box-shadow:0 4px 0 #0a0a0a,0 5px 14px rgba(0,0,0,.55),0 0 12px rgba(140,60,255,.4);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:700;color:rgba(255,255,255,.55);
+  animation:keycapFly 2.6s ease-out infinite;
+}
+.keycap:nth-child(2){animation-delay:1.3s;left:2%;top:-8%}
+.keycap:nth-child(3){animation-delay:.6s;left:28%;top:2%}
+
+/* ═══════════════════════════════════════════════════════════════
+   RGB SECTION — dark studio
+═══════════════════════════════════════════════════════════════ */
+#rgb{
+  min-height:100vh;background:#0a0810;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:100px 48px 80px;position:relative;overflow:hidden;
+}
+#rgb::before{
+  content:'';position:absolute;bottom:-40px;left:50%;transform:translateX(-50%);
+  width:70%;height:280px;
+  background:radial-gradient(ellipse at center bottom,rgba(130,40,255,.20) 0%,transparent 68%);
+  pointer-events:none;
+}
+#rgb::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:120px;
+  background:linear-gradient(to bottom,rgba(10,8,16,0) 0%,rgba(10,8,16,1) 100%);
+  pointer-events:none;z-index:1;
+}
+.rgb-eyebrow{font-size:9px;letter-spacing:.5em;text-transform:uppercase;color:rgba(160,80,255,.65);margin-bottom:18px;position:relative;z-index:2}
+.rgb-title{font-size:clamp(24px,3.8vw,50px);font-weight:700;letter-spacing:-.02em;text-align:center;color:#fff;margin-bottom:10px;position:relative;z-index:2}
+.rgb-sub{font-size:13px;font-weight:300;color:rgba(255,255,255,.32);letter-spacing:.06em;text-align:center;margin-bottom:70px;position:relative;z-index:2}
+
+#kb-rgb-wrap{position:relative;width:70vw;max-width:1100px;z-index:2}
+#kb-canvas-rgb{display:block;width:100%}
+
+/* Pulsing underglow strip beneath RGB canvas */
+@keyframes underglowPulse{
+  0%,100%{transform:scaleX(.88);opacity:.5}
+  50%    {transform:scaleX(1.08);opacity:1}
+}
+.kb-underglow{
+  position:absolute;
+  bottom:-18px;left:8%;right:8%;height:48px;
+  border-radius:50%;background:rgba(140,40,255,.65);
+  filter:blur(18px);
+  animation:underglowPulse 2.2s ease-in-out infinite;
+  will-change:transform,opacity;
+}
+
+/* Spec grid */
+.spec-grid{
+  margin-top:80px;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+  max-width:700px;width:100%;position:relative;z-index:2;
+}
+.spec-cell{padding:30px 18px;background:rgba(140,50,255,.04);border:1px solid rgba(140,50,255,.12);text-align:center}
+.spec-v{font-size:21px;font-weight:700;color:#fff;margin-bottom:8px}
+.spec-k{font-size:7.5px;letter-spacing:.26em;text-transform:uppercase;color:rgba(160,80,255,.5)}
+
+/* ─── FOOTER ─── */
+footer{background:#060510;padding:30px 52px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(140,50,255,.07)}
+.ft-logo{font-size:9px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.22)}
+.ft-copy{font-size:9px;color:rgba(255,255,255,.10)}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:900px){
+  #hero{flex-direction:column;padding-top:80px;align-items:flex-start}
+  .hero-text{width:100%;padding:80px 32px 0;max-width:100%}
+  #kb-zone{position:relative;right:auto;top:auto;width:92vw;margin:40px auto 0}
+  #kb-3d{transform:none!important}
+  .spec-grid{grid-template-columns:repeat(2,1fr)}
+  footer{flex-direction:column;gap:10px;text-align:center}
+  #nav{padding:18px 28px}
+  .nav-links{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav id="nav">
+  <div class="nav-logo">iQunix</div>
+  <ul class="nav-links">
+    <li><a href="file:///C:/Users/User/keyboard.html#hero" style="">Home</a></li>
+    <li><a href="file:///C:/Users/User/keyboard.html#rgb" style="color: rgba(255, 255, 255, 0.8);">RGB</a></li>
+    <li><a href="file:///C:/Users/User/keyboard.html#rgb">Specs</a></li>
+  </ul>
+  <button class="nav-cta">Buy — $169</button>
+</nav>
+
+<!-- ══════════════════════ HERO ══════════════════════ -->
+<section id="hero">
+
+  <div class="hero-text">
+    <div class="hero-kicker">iQunix Studio · 2026</div>
+    <h1 class="hero-title">F60</h1>
+    <p class="hero-sub">iQunix Mechanical<br>Keyboard</p>
+    <div class="hero-badge">
+      <svg viewBox="0 0 24 24"><path d="M17.71 7.71L12 2h-1v7.59L6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 11 14.41V22h1l5.71-5.71-4.3-4.29 4.3-4.29zM13 5.83l1.88 1.88L13 9.59V5.83zm1.88 10.46L13 18.17v-3.76l1.88 1.88z"></path></svg>
+      Bluetooth &amp; Type-C USB
+    </div>
+    <div class="hero-btns">
+      <button class="btn-primary">Buy Now</button>
+      <button class="btn-ghost">Learn More</button>
+    </div>
+  </div>
+
+  <div id="kb-zone">
+    <div class="keycap" style="left:34%;top:12%">F</div>
+    <div class="keycap" style="left:58%;top:8%">6</div>
+    <div id="kb-float">
+      <div id="kb-3d" style="transform: perspective(1000px) translateY(-50%) rotateX(24.74deg) rotateY(-12.74deg) rotateZ(-5deg);">
+        <canvas id="kb-canvas-hero" width="900" height="360"></canvas>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ══════════════════════ RGB ══════════════════════ -->
+<section id="rgb">
+
+  <div class="rgb-eyebrow">Per-Key RGB Illuminated</div>
+  <h2 class="rgb-title">F60 — iQunix Mechanical Keyboard</h2>
+  <p class="rgb-sub">60% Layout · Hot-Swap Switches · 18 Lighting Effects</p>
+
+  <div id="kb-rgb-wrap">
+    <canvas id="kb-canvas-rgb" width="900" height="360"></canvas>
+    <div class="kb-underglow"></div>
+  </div>
+
+  <div class="spec-grid">
+    <div class="spec-cell"><div class="spec-v">60%</div><div class="spec-k">Layout</div></div>
+    <div class="spec-cell"><div class="spec-v">BT 5.0</div><div class="spec-k">Wireless</div></div>
+    <div class="spec-cell"><div class="spec-v">RGB</div><div class="spec-k">Per-Key</div></div>
+    <div class="spec-cell"><div class="spec-v">Hot</div><div class="spec-k">Swap</div></div>
+  </div>
+
+</section>
+
+<footer>
+  <div class="ft-logo">iQunix</div>
+  <div class="ft-copy">© 2026 iQunix. All rights reserved.</div>
+</footer>
+
+<script>
+'use strict';
+
+/* ═══════════════════════════════════════════════════════════════
+   CANVAS KEYBOARD DRAWING
+   rgbHue: -1 = static dark mode, 0-360 = RGB hue shift
+═══════════════════════════════════════════════════════════════ */
+function drawKB(canvas, rgbHue) {
+  const W = 900, H = 360;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, W, H);
+
+  /* layout constants — 60% keyboard, 15U wide */
+  const U=56, G=5, KH=46, B=4, KR=5, SX=22, SY=42;
+  const kw = u => u * U - G;
+  const hasRgb = (rgbHue >= 0);
+
+  function rr(x,y,w,h,r){ ctx.beginPath(); ctx.roundRect(x,y,w,h,r); }
+
+  /* ── underglow (drawn first, bleeds around body edges) ── */
+  const glowColor = hasRgb
+    ? `hsla(${rgbHue},100%,58%,0.58)`
+    : 'rgba(120,38,210,0.52)';
+
+  ctx.save();
+  ctx.shadowColor = glowColor;
+  ctx.shadowBlur  = 70;
+  ctx.fillStyle   = glowColor;
+  ctx.fillRect(90, 328, W-180, 5);
+  ctx.shadowBlur  = 35;
+  ctx.fillRect(90, 328, W-180, 5);
+  ctx.restore();
+
+  /* ── keyboard body ── */
+  rr(8, 10, 884, 308, 16);
+  const bodyGrad = ctx.createLinearGradient(0, 10, 0, 318);
+  bodyGrad.addColorStop(0,   '#272727');
+  bodyGrad.addColorStop(0.5, '#1e1e1e');
+  bodyGrad.addColorStop(1,   '#161616');
+  ctx.fillStyle = bodyGrad;
+  ctx.fill();
+
+  /* body rim */
+  rr(8, 10, 884, 308, 16);
+  ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+  ctx.lineWidth   = 1;
+  ctx.stroke();
+
+  /* top surface highlight sheen */
+  const sheen = ctx.createLinearGradient(0, 10, 0, 68);
+  sheen.addColorStop(0, 'rgba(255,255,255,0.055)');
+  sheen.addColorStop(1, 'rgba(255,255,255,0)');
+  rr(8, 10, 884, 58, [16,16,0,0]);
+  ctx.fillStyle = sheen;
+  ctx.fill();
+
+  /* ── keys ── */
+  let ki = 0;
+
+  function key(x, y, u, h, label, accent) {
+    const idx = ki++;
+    const w   = kw(u);
+    const fh  = h - B;
+    const kh  = hasRgb ? (rgbHue + idx * 9) % 360 : 0;
+
+    /* bevel / depth shadow */
+    rr(x, y+B, w, fh, KR);
+    ctx.fillStyle = '#0b0b0b';
+    ctx.fill();
+
+    /* key face */
+    const fg = ctx.createLinearGradient(x, y, x, y+fh);
+    if (accent) {
+      fg.addColorStop(0,   '#e84828');
+      fg.addColorStop(0.3, '#c43018');
+      fg.addColorStop(1,   '#8c1e08');
+    } else if (hasRgb) {
+      fg.addColorStop(0,   `hsl(${kh},24%,21%)`);
+      fg.addColorStop(0.2, `hsl(${kh},20%,16%)`);
+      fg.addColorStop(1,   `hsl(${kh},16%,10%)`);
+    } else {
+      fg.addColorStop(0,   '#303030');
+      fg.addColorStop(0.2, '#272727');
+      fg.addColorStop(1,   '#1b1b1b');
+    }
+    rr(x, y, w, fh, KR);
+    ctx.fillStyle = fg;
+    ctx.fill();
+
+    /* RGB per-key rim glow */
+    if (hasRgb && !accent) {
+      rr(x, y, w, fh, KR);
+      ctx.strokeStyle = `hsla(${kh},100%,65%,0.28)`;
+      ctx.lineWidth   = 0.8;
+      ctx.stroke();
+    }
+
+    /* top rim highlight */
+    ctx.beginPath();
+    ctx.moveTo(x+KR, y+1.5);
+    ctx.lineTo(x+w-KR, y+1.5);
+    ctx.strokeStyle = accent
+      ? 'rgba(255,190,120,0.62)'
+      : hasRgb
+        ? `hsla(${kh},100%,72%,0.20)`
+        : 'rgba(255,255,255,0.13)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    /* left edge micro-glint */
+    ctx.beginPath();
+    ctx.moveTo(x+1.5, y+KR);
+    ctx.lineTo(x+1.5, y+fh-KR-1);
+    ctx.strokeStyle = accent ? 'rgba(255,150,80,0.10)' : 'rgba(255,255,255,0.035)';
+    ctx.lineWidth   = 1;
+    ctx.stroke();
+
+    /* label */
+    if (label && label.trim()) {
+      ctx.font         = '500 9px "Inter",system-ui,sans-serif';
+      ctx.textAlign    = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle    = accent
+        ? 'rgba(255,255,255,0.93)'
+        : hasRgb
+          ? `hsla(${kh},80%,84%,0.68)`
+          : 'rgba(255,255,255,0.38)';
+      ctx.fillText(label, x+w/2, y+fh/2+0.5);
+    }
+  }
+
+  function row(y, h, keys) {
+    let x = SX;
+    for (const [u, label, accent] of keys) {
+      key(x, y, u, h, label, !!accent);
+      x += u * U;
+    }
+  }
+
+  const Y0=SY, Y1=Y0+KH+G, Y2=Y1+KH+G, Y3=Y2+KH+G, Y4=Y3+KH+G;
+
+  /* Row 0 — number row  (15U: 13×1 + 1×2) */
+  row(Y0, KH, [
+    [1,'Esc',true],[1,'1'],[1,'2'],[1,'3'],[1,'4'],[1,'5'],
+    [1,'6'],[1,'7'],[1,'8'],[1,'9'],[1,'0'],[1,'−'],[1,'='],[2,'⌫']
+  ]);
+  /* Row 1 — QWERTY      (15U: 1.5 + 12×1 + 1.5) */
+  row(Y1, KH, [
+    [1.5,'Tab'],[1,'Q'],[1,'W'],[1,'E'],[1,'R'],[1,'T'],
+    [1,'Y'],[1,'U'],[1,'I'],[1,'O'],[1,'P'],[1,'['],[1,']'],[1.5,'\\']
+  ]);
+  /* Row 2 — home row    (15U: 1.75 + 11×1 + 2.25) */
+  row(Y2, KH, [
+    [1.75,'Caps',true],[1,'A'],[1,'S'],[1,'D'],[1,'F'],[1,'G'],
+    [1,'H'],[1,'J'],[1,'K'],[1,'L'],[1,';'],[1,"'"],[2.25,'↵']
+  ]);
+  /* Row 3 — shift row   (15U: 2.25 + 10×1 + 2.75) */
+  row(Y3, KH, [
+    [2.25,'⇧'],[1,'Z'],[1,'X'],[1,'C'],[1,'V'],[1,'B'],
+    [1,'N'],[1,'M'],[1,','],[1,'.'],[1,'/'],[2.75,'⇧']
+  ]);
+  /* Row 4 — bottom row  (15U: 7×1.25 + 6.25) */
+  row(Y4, KH, [
+    [1.25,'Ctrl'],[1.25,'⊞'],[1.25,'Alt'],[6.25,' '],[1.25,'Alt'],[1.25,'Fn'],[1.25,'▤'],[1.25,'Ctrl']
+  ]);
+}
+
+/* ── Hero canvas: draw once after fonts load ── */
+const heroCanvas = document.getElementById('kb-canvas-hero');
+document.fonts.ready.then(() => drawKB(heroCanvas, -1));
+
+/* ── RGB canvas: animated hue cycle ── */
+const rgbCanvas = document.getElementById('kb-canvas-rgb');
+let rgbHue = 270;
+document.fonts.ready.then(() => {
+  (function animRgb() {
+    rgbHue = (rgbHue + 0.45) % 360;
+    drawKB(rgbCanvas, rgbHue);
+    requestAnimationFrame(animRgb);
+  })();
+});
+
+/* ── Parallax: smooth 3D tilt following mouse ── */
+const kb3d = document.getElementById('kb-3d');
+const BASE_RX = 25, BASE_RY = -15, BASE_RZ = -5;
+let rxOff = 0, ryOff = 0;
+let rxS   = 0, ryS   = 0;
+
+function lerp(a, b, t){ return a + (b-a)*t; }
+
+document.addEventListener('mousemove', e => {
+  rxOff = ((e.clientY / window.innerHeight) - 0.5) * 14;
+  ryOff = ((e.clientX / window.innerWidth)  - 0.5) * -18;
+});
+
+(function tick() {
+  rxS = lerp(rxS, rxOff, 0.07);
+  ryS = lerp(ryS, ryOff, 0.07);
+  const rx = (BASE_RX + rxS).toFixed(2);
+  const ry = (BASE_RY + ryS).toFixed(2);
+  kb3d.style.transform =
+    `perspective(1000px) translateY(-50%) rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(${BASE_RZ}deg)`;
+  requestAnimationFrame(tick);
+})();
+
+/* ── Nav active highlight ── */
+const heroSec  = document.getElementById('hero');
+const rgbSec   = document.getElementById('rgb');
+const navLinks = document.querySelectorAll('.nav-links a');
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    navLinks.forEach(l => l.style.color = '');
+    const idx = e.target === heroSec ? 0 : 1;
+    if (navLinks[idx]) navLinks[idx].style.color = 'rgba(255,255,255,.80)';
+  });
+}, { threshold: 0.5 });
+io.observe(heroSec);
+io.observe(rgbSec);
+</script>
+
+
+</body></html>
