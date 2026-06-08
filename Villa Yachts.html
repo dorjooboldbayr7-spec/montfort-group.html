@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<!-- saved from url=(0038)file:///C:/Users/User/yacht.html#fleet -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Villa Yachts</title>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #050810; color: #f0ece0; overflow-x: hidden; }
+
+/* ── nav ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 26px 6vw;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-brand {
+  font-family: Georgia, serif; font-size: 18px;
+  letter-spacing: 0.35em; color: #fff; font-weight: 400;
+  text-shadow: 0 1px 20px rgba(0,0,0,0.6);
+}
+.nav-links { display: flex; gap: 2.4em; list-style: none; }
+.nav-links a {
+  font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+  color: rgba(255,255,255,0.8); text-decoration: none; transition: color 0.2s;
+}
+.nav-links a:hover { color: #fff; }
+.nav-cta {
+  font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: #fff; background: transparent;
+  border: 1px solid rgba(255,255,255,0.4);
+  padding: 10px 22px; cursor: pointer; font-family: inherit;
+  transition: all 0.22s;
+}
+.nav-cta:hover { background: rgba(255,255,255,0.1); border-color: #fff; }
+
+/* ── hero ── */
+#hero {
+  position: relative; width: 100vw; height: 100vh; overflow: hidden;
+  background: linear-gradient(
+    to bottom,
+    #0c0720 0%, #1a0c3e 16%, #5a1640 36%,
+    #b84020 58%, #e86828 72%,
+    #f5a040 84%, #fbd080 93%, #fde8b0 100%
+  );
+}
+#hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; }
+.hero-img-overlay {
+  position: absolute; inset: 0; z-index: 1;
+  background-image: url('https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?w=1920&q=80');
+  background-size: cover; background-position: center 60%;
+  opacity: 0.13; mix-blend-mode: luminosity;
+}
+.hero-overlay {
+  position: absolute; inset: 0; z-index: 3;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; pointer-events: none;
+}
+.hero-title {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(90px, 17vw, 210px);
+  font-weight: 700; letter-spacing: 0.12em; color: #fff;
+  line-height: 1;
+  text-shadow: 0 2px 60px rgba(0,0,0,0.35), 0 0 120px rgba(255,150,50,0.18);
+}
+.hero-sub {
+  font-size: clamp(10px, 1.2vw, 15px); letter-spacing: 0.38em;
+  text-transform: uppercase; color: rgba(255,255,255,0.75);
+  font-weight: 300; margin: 1.6em 0 2.8em;
+}
+.hero-btn {
+  pointer-events: all; font-size: 10px; letter-spacing: 0.28em;
+  text-transform: uppercase; color: #fff;
+  background: #e05818; border: none;
+  padding: 16px 40px; cursor: pointer; font-family: inherit;
+  transition: background 0.22s, transform 0.18s;
+}
+.hero-btn:hover { background: #f57030; transform: translateY(-2px); }
+.scroll-line {
+  position: absolute; bottom: 34px; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  z-index: 3;
+}
+.scroll-line span {
+  font-size: 8px; letter-spacing: 0.3em; text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+}
+.scroll-line::after {
+  content: ''; width: 1px; height: 44px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.45), transparent);
+  animation: drip 2.2s ease-in-out infinite;
+}
+@keyframes drip { 0%,100% { opacity:0.4; } 50% { opacity:1; } }
+
+/* ── quote ── */
+#manifesto {
+  background: #070b17; padding: 110px 6vw;
+  display: flex; align-items: center; justify-content: center;
+  min-height: 45vh; text-align: center;
+}
+.quote-rule { width: 50px; height: 1px; background: #c8881e; margin: 0 auto 36px; }
+.quote-text {
+  font-family: Georgia, serif; font-style: italic; font-weight: 400;
+  font-size: clamp(20px, 3vw, 48px); color: #f0ece0;
+  line-height: 1.45; max-width: 860px; opacity: 0.88;
+  margin-bottom: 36px;
+}
+.quote-attr {
+  font-size: 9px; letter-spacing: 0.38em; text-transform: uppercase;
+  color: #c8881e;
+}
+
+/* ── section commons ── */
+.sec { padding: 100px 6vw; }
+.sec-label {
+  font-size: 9px; letter-spacing: 0.42em; text-transform: uppercase;
+  color: #c8881e; margin-bottom: 14px;
+}
+.sec-title {
+  font-family: Georgia, serif; font-weight: 400;
+  font-size: clamp(30px, 4.5vw, 68px); color: #f0ece0;
+  line-height: 1.1; margin-bottom: 60px;
+}
+
+/* ── fleet ── */
+#fleet { background: #060a14; }
+.fleet-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 3px; }
+.fleet-card { position: relative; overflow: hidden; cursor: pointer; aspect-ratio: 2/3; }
+.fleet-bg { position: absolute; inset: 0; transition: transform 0.65s ease; }
+.fleet-card:hover .fleet-bg { transform: scale(1.05); }
+.fleet-card .fleet-bg { background-size: cover; background-position: center; }
+.fleet-card:nth-child(1) .fleet-bg { background-image: url('https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&q=80'); }
+.fleet-card:nth-child(2) .fleet-bg { background-image: url('https://images.unsplash.com/photo-1605281317010-fe5ffe798166?w=800&q=80'); }
+.fleet-card:nth-child(3) .fleet-bg { background-image: url('https://images.unsplash.com/photo-1569263979104-865ab7cd8d13?w=800&q=80'); }
+.fleet-info {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 28px 26px;
+  background: linear-gradient(to top,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.4) 55%,transparent 100%);
+}
+.fleet-name { font-family: Georgia,serif; font-size: 20px; color: #fff; margin-bottom: 6px; }
+.fleet-spec { font-size: 9px; letter-spacing: 0.24em; text-transform: uppercase; color: rgba(255,255,255,0.5); }
+
+/* ── destinations ── */
+#destinations { background: #040810; }
+.dest-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 3px;
+}
+.dest-card { position: relative; overflow: hidden; cursor: pointer; aspect-ratio: 16/9; }
+.dest-card:first-child { grid-column: 1 / 3; }
+.dest-bg { position: absolute; inset: 0; transition: transform 0.65s ease; }
+.dest-card:hover .dest-bg { transform: scale(1.04); }
+.dest-card:nth-child(1) .dest-bg { background: linear-gradient(120deg,#0a1830 0%,#1a3c6a 55%,#c84c20 100%); }
+.dest-card:nth-child(2) .dest-bg { background: linear-gradient(130deg,#080f08 0%,#1a4828 55%,#489060 100%); }
+.dest-card:nth-child(3) .dest-bg { background: linear-gradient(140deg,#120610 0%,#3a1030 60%,#c02858 100%); }
+.dest-card:nth-child(4) .dest-bg { background: linear-gradient(130deg,#080c0a 0%,#14283c 55%,#285278 100%); }
+.dest-info {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 26px 30px;
+  background: linear-gradient(to top,rgba(0,0,0,0.78),transparent);
+}
+.dest-name {
+  font-family: Georgia,serif; color: #fff; margin-bottom: 6px;
+  font-size: clamp(18px, 2.2vw, 34px);
+}
+.dest-sub { font-size: 9px; letter-spacing: 0.28em; text-transform: uppercase; color: rgba(255,255,255,0.48); }
+
+/* ── experience ── */
+#experience { background: #080c18; }
+.exp-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 3px; }
+.exp-card {
+  background: #0c1220; padding: 50px 38px;
+  border-top: 1px solid rgba(200,136,30,0.2);
+}
+.exp-num { font-size: 9px; letter-spacing: 0.32em; color: #c8881e; margin-bottom: 26px; }
+.exp-title {
+  font-family: Georgia,serif; font-size: clamp(18px, 1.8vw, 26px);
+  color: #f0ece0; margin-bottom: 16px; line-height: 1.2;
+}
+.exp-body { font-size: 13px; line-height: 1.8; color: rgba(240,236,224,0.48); font-weight: 300; }
+
+/* ── cta ── */
+#reserve { background: #040810; padding: 130px 6vw; text-align: center; }
+.reserve-label { font-size: 9px; letter-spacing: 0.42em; text-transform: uppercase; color: #c8881e; margin-bottom: 18px; }
+.reserve-title {
+  font-family: Georgia,serif; font-size: clamp(34px,5.5vw,84px);
+  font-weight: 400; color: #f0ece0; line-height: 1.1; margin-bottom: 48px;
+}
+.reserve-title em { font-style: italic; color: #c8881e; }
+.reserve-btn {
+  font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase;
+  color: #fff; background: #e05818; border: none;
+  padding: 18px 50px; cursor: pointer; font-family: inherit;
+  transition: background 0.22s;
+}
+.reserve-btn:hover { background: #f57030; }
+
+/* ── footer ── */
+footer { background: #030508; padding: 64px 6vw 40px; border-top: 1px solid rgba(255,255,255,0.05); }
+.footer-top {
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 48px; margin-bottom: 56px;
+}
+.footer-brand {
+  font-family: Georgia,serif; font-size: 26px; letter-spacing: 0.32em;
+  color: #f0ece0; margin-bottom: 16px;
+}
+.footer-tagline { font-size: 12px; line-height: 1.75; color: rgba(240,236,224,0.38); max-width: 240px; }
+.footer-col h4 { font-size: 8px; letter-spacing: 0.38em; text-transform: uppercase; color: #c8881e; margin-bottom: 18px; }
+.footer-col ul { list-style: none; }
+.footer-col li { font-size: 12px; color: rgba(240,236,224,0.42); margin-bottom: 10px; cursor: pointer; transition: color 0.18s; }
+.footer-col li:hover { color: rgba(240,236,224,0.8); }
+.footer-bottom {
+  display: flex; justify-content: space-between; align-items: center;
+  border-top: 1px solid rgba(255,255,255,0.06); padding-top: 28px;
+}
+.footer-copy { font-size: 10px; color: rgba(240,236,224,0.22); letter-spacing: 0.06em; }
+
+@media (max-width: 900px) {
+  .fleet-grid, .exp-grid { grid-template-columns: 1fr; }
+  .dest-card:first-child { grid-column: 1 / 2; }
+  .dest-grid { grid-template-columns: 1fr; }
+  .footer-top { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
+  .nav-links { display: none; }
+  .footer-top { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">VILLA</div>
+  <ul class="nav-links">
+    <li><a href="file:///C:/Users/User/yacht.html#fleet">Fleet</a></li>
+    <li><a href="file:///C:/Users/User/yacht.html#destinations">Destinations</a></li>
+    <li><a href="file:///C:/Users/User/yacht.html#experience">Experience</a></li>
+  </ul>
+  <button class="nav-cta">Reserve</button>
+</nav>
+
+<section id="hero">
+  <canvas id="c" width="1862" height="925" style="width: 1490px; height: 740px;"></canvas>
+  <div class="hero-overlay">
+    <h1 class="hero-title">VILLA</h1>
+    <p class="hero-sub">We will help you escape</p>
+    <button class="hero-btn">Explore More</button>
+  </div>
+  <div class="scroll-line"><span>scroll</span></div>
+</section>
+
+<section id="manifesto">
+  <div>
+    <div class="quote-rule"></div>
+    <p class="quote-text">"The sea, once it casts its spell,<br>holds one in its net of wonder forever."</p>
+    <div class="quote-rule"></div>
+    <p class="quote-attr">Jacques Cousteau</p>
+  </div>
+</section>
+
+<section id="fleet" class="sec">
+  <p class="sec-label">Our Fleet</p>
+  <h2 class="sec-title">Vessels of<br>Distinction</h2>
+  <div class="fleet-grid">
+    <div class="fleet-card">
+      <div class="fleet-bg"></div>
+      <svg class="fleet-icon" width="180" height="55" viewBox="0 0 180 55" fill="none">
+        <path d="M8 45 Q90 8 172 45" stroke="white" stroke-width="1.5"></path>
+        <path d="M30 45 L30 8 L120 45Z" fill="white" opacity=".55"></path>
+        <rect x="68" y="30" width="80" height="15" fill="white" opacity=".8"></rect>
+      </svg>
+      <div class="fleet-info">
+        <div class="fleet-name">Azimut Grande 35M</div>
+        <div class="fleet-spec">35 Metres · 10 Guests</div>
+      </div>
+    </div>
+    <div class="fleet-card">
+      <div class="fleet-bg"></div>
+      <svg class="fleet-icon" width="180" height="65" viewBox="0 0 180 65" fill="none">
+        <path d="M5 52 Q90 5 175 52" stroke="white" stroke-width="1.5"></path>
+        <path d="M22 52 L22 4 L110 52Z" fill="white" opacity=".5"></path>
+        <rect x="75" y="35" width="75" height="17" fill="white" opacity=".8"></rect>
+        <rect x="90" y="18" width="38" height="17" fill="white" opacity=".7"></rect>
+      </svg>
+      <div class="fleet-info">
+        <div class="fleet-name">Sunseeker 50 Ocean</div>
+        <div class="fleet-spec">50 Metres · 14 Guests</div>
+      </div>
+    </div>
+    <div class="fleet-card">
+      <div class="fleet-bg"></div>
+      <svg class="fleet-icon" width="180" height="75" viewBox="0 0 180 75" fill="none">
+        <path d="M5 62 Q90 12 175 62" stroke="white" stroke-width="1.5"></path>
+        <path d="M18 62 L18 4 L100 62Z" fill="white" opacity=".5"></path>
+        <path d="M55 62 L55 16 L132 62Z" fill="white" opacity=".3"></path>
+        <rect x="88" y="42" width="70" height="20" fill="white" opacity=".8"></rect>
+        <rect x="100" y="22" width="35" height="20" fill="white" opacity=".7"></rect>
+      </svg>
+      <div class="fleet-info">
+        <div class="fleet-name">Princess 85 MY</div>
+        <div class="fleet-spec">85 Metres · 20 Guests</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="destinations" class="sec">
+  <p class="sec-label">Destinations</p>
+  <h2 class="sec-title">The World<br>Awaits</h2>
+  <div class="dest-grid">
+    <div class="dest-card">
+      <div class="dest-bg"></div>
+      <div class="dest-info">
+        <div class="dest-name">Mediterranean</div>
+        <div class="dest-sub">Côte d'Azur · Amalfi · Mykonos</div>
+      </div>
+    </div>
+    <div class="dest-card">
+      <div class="dest-bg"></div>
+      <div class="dest-info">
+        <div class="dest-name">Caribbean</div>
+        <div class="dest-sub">St. Barts · Antigua · BVI</div>
+      </div>
+    </div>
+    <div class="dest-card">
+      <div class="dest-bg"></div>
+      <div class="dest-info">
+        <div class="dest-name">Maldives</div>
+        <div class="dest-sub">North Malé · Baa · Ari Atoll</div>
+      </div>
+    </div>
+    <div class="dest-card">
+      <div class="dest-bg"></div>
+      <div class="dest-info">
+        <div class="dest-name">Pacific Islands</div>
+        <div class="dest-sub">Tahiti · Bora Bora · Fiji</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="experience" class="sec">
+  <p class="sec-label">The Experience</p>
+  <h2 class="sec-title">Beyond<br>Ordinary</h2>
+  <div class="exp-grid">
+    <div class="exp-card">
+      <div class="exp-num">01</div>
+      <h3 class="exp-title">White Glove Crew</h3>
+      <p class="exp-body">Professionally trained captains and crew dedicated to exceeding your every expectation. Your comfort is their art form.</p>
+    </div>
+    <div class="exp-card">
+      <div class="exp-num">02</div>
+      <h3 class="exp-title">Bespoke Itineraries</h3>
+      <p class="exp-body">Every voyage is composed around your desires. From hidden coves to private islands — we chart the extraordinary.</p>
+    </div>
+    <div class="exp-card">
+      <div class="exp-num">03</div>
+      <h3 class="exp-title">Culinary Excellence</h3>
+      <p class="exp-body">Private chefs craft bespoke menus with locally sourced ingredients and world-class wine selections, at sea.</p>
+    </div>
+  </div>
+</section>
+
+<section id="reserve">
+  <p class="reserve-label">Begin Your Journey</p>
+  <h2 class="reserve-title">Your <em>escape</em><br>starts here.</h2>
+  <button class="reserve-btn">Reserve Your Charter</button>
+</section>
+
+<footer>
+  <div class="footer-top">
+    <div>
+      <div class="footer-brand">VILLA</div>
+      <p class="footer-tagline">Luxury yacht charters for those who seek the extraordinary. Sail beyond the horizon.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Fleet</h4>
+      <ul>
+        <li>Motor Yachts</li><li>Sailing Yachts</li>
+        <li>Catamarans</li><li>Superyachts</li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Destinations</h4>
+      <ul>
+        <li>Mediterranean</li><li>Caribbean</li>
+        <li>Maldives</li><li>Pacific</li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <ul>
+        <li>About Villa</li><li>Our Story</li>
+        <li>Press</li><li>Contact</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">© 2026 Villa Yachts. All rights reserved.</span>
+    <span class="footer-copy">Privacy &nbsp;·&nbsp; Terms</span>
+  </div>
+</footer>
+
+<script src="./Villa Yachts_files/three.min.js.download"></script>
+<script>
+'use strict';
+
+const canvas = document.getElementById('c');
+const hero   = document.getElementById('hero');
+const W = () => hero.clientWidth;
+const H = () => hero.clientHeight;
+
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(W(), H());
+renderer.setClearColor(0x000000, 0);
+
+const scene = new THREE.Scene();
+
+const cam = new THREE.PerspectiveCamera(62, W() / H(), 0.1, 600);
+cam.position.set(0, 5, 22);
+cam.lookAt(0, 0.5, -20);
+
+// Lights
+scene.add(new THREE.AmbientLight(0xff8844, 0.25));
+const keyLight = new THREE.DirectionalLight(0xffaa50, 1.4);
+keyLight.position.set(0, 10, -60);
+scene.add(keyLight);
+
+// ── Sun sphere + glow ──────────────────────────────────
+const sunMesh = new THREE.Mesh(
+  new THREE.SphereGeometry(5, 32, 20),
+  new THREE.MeshBasicMaterial({ color: 0xffe090 })
+);
+sunMesh.position.set(0, 3.5, -130);
+scene.add(sunMesh);
+
+const gc = document.createElement('canvas');
+gc.width = gc.height = 256;
+const gx = gc.getContext('2d');
+const gr = gx.createRadialGradient(128,128,0, 128,128,128);
+gr.addColorStop(0.00, 'rgba(255,240,170,0.95)');
+gr.addColorStop(0.12, 'rgba(255,200,80,0.75)');
+gr.addColorStop(0.38, 'rgba(255,110,20,0.38)');
+gr.addColorStop(1.00, 'rgba(200,50,0,0)');
+gx.fillStyle = gr; gx.fillRect(0,0,256,256);
+const glowTex = new THREE.CanvasTexture(gc);
+
+const sunGlow = new THREE.Sprite(new THREE.SpriteMaterial({
+  map: glowTex,
+  blending: THREE.AdditiveBlending,
+  transparent: true, depthWrite: false,
+}));
+sunGlow.scale.setScalar(72);
+sunGlow.position.copy(sunMesh.position);
+scene.add(sunGlow);
+
+// ── Water ──────────────────────────────────────────────
+const waterGeo = new THREE.PlaneGeometry(400, 240, 130, 85);
+waterGeo.rotateX(-Math.PI / 2);
+
+const waterMat = new THREE.ShaderMaterial({
+  uniforms: {
+    uTime:        { value: 0 },
+    uDeep:        { value: new THREE.Color(0x030c1e) },
+    uHorizon:     { value: new THREE.Color(0x902808) },
+  },
+  vertexShader: `
+    uniform float uTime;
+    varying vec3  vWP;
+    varying float vH;
+    void main() {
+      vec3 p = position;
+      float w = sin(p.x * 0.22 + uTime * 1.15) * 0.58
+              + sin(p.z * 0.16 - uTime * 0.85) * 0.44
+              + sin((p.x+p.z)*0.11 + uTime * 1.65) * 0.28
+              + sin(p.x * 0.45  + uTime * 2.1 ) * 0.14;
+      p.y += w;
+      vH = w;
+      vec4 wp = modelMatrix * vec4(p, 1.0);
+      vWP = wp.xyz;
+      gl_Position = projectionMatrix * viewMatrix * wp;
+    }
+  `,
+  fragmentShader: `
+    uniform vec3  uDeep;
+    uniform vec3  uHorizon;
+    varying vec3  vWP;
+    varying float vH;
+    void main() {
+      // Horizon gradient (farther z = more golden)
+      float far = clamp(-vWP.z / 90.0, 0.0, 1.0);
+      far = pow(far, 0.5);
+
+      // Sun reflection strip along center x
+      float strip = 1.0 - clamp(abs(vWP.x) / 18.0, 0.0, 1.0);
+      strip = pow(strip, 1.8);
+
+      // Wave crest
+      float crest = clamp(vH * 0.55 + 0.5, 0.0, 1.0);
+
+      vec3 col = mix(uDeep, uHorizon, far);
+      col += vec3(0.75, 0.38, 0.06) * strip * far * crest * 0.65;
+      col += vec3(0.45, 0.22, 0.04) * crest * far * 0.28;
+
+      gl_FragColor = vec4(col, 1.0);
+    }
+  `,
+});
+scene.add(new THREE.Mesh(waterGeo, waterMat));
+
+// ── Horizon atmosphere strip ───────────────────────────
+const atmoMesh = new THREE.Mesh(
+  new THREE.PlaneGeometry(400, 18),
+  new THREE.MeshBasicMaterial({
+    color: 0xee6010, transparent: true, opacity: 0.14,
+    blending: THREE.AdditiveBlending, depthWrite: false,
+  })
+);
+atmoMesh.position.set(0, 2.0, -120);
+scene.add(atmoMesh);
+
+// ── Yacht silhouette ───────────────────────────────────
+function buildYacht() {
+  const g = new THREE.Group();
+  const m = new THREE.MeshBasicMaterial({ color: 0x030810, side: THREE.DoubleSide });
+
+  // Hull + superstructure
+  const hull = new THREE.Shape();
+  hull.moveTo(-12, 0);
+  hull.bezierCurveTo(-10, -1.6, 4, -1.85, 14, -0.2);
+  hull.lineTo(17,  1.0);
+  hull.lineTo(14,  2.2);
+  hull.lineTo(5,   2.2);
+  hull.lineTo(5,   3.6);
+  hull.lineTo(-3,  3.6);
+  hull.lineTo(-3,  4.9);
+  hull.lineTo(-6.5, 4.9);
+  hull.lineTo(-6.5, 3.6);
+  hull.lineTo(-11, 3.6);
+  hull.lineTo(-12, 2.2);
+  hull.closePath();
+  g.add(new THREE.Mesh(new THREE.ShapeGeometry(hull), m));
+
+  // Mast
+  const mast = new THREE.Shape();
+  mast.moveTo(-0.28, 3.6); mast.lineTo(0.28, 3.6);
+  mast.lineTo(0.28, 11.5); mast.lineTo(-0.28, 11.5);
+  mast.closePath();
+  g.add(new THREE.Mesh(new THREE.ShapeGeometry(mast), m));
+
+  // Antenna
+  const ant = new THREE.Shape();
+  ant.moveTo(-2.5, 4.9); ant.lineTo(-2.2, 4.9);
+  ant.lineTo(-2.2, 7.6); ant.lineTo(-2.5, 7.6);
+  ant.closePath();
+  g.add(new THREE.Mesh(new THREE.ShapeGeometry(ant), m));
+
+  return g;
+}
+
+const yacht = buildYacht();
+yacht.scale.setScalar(1.4);
+yacht.position.set(-1, 1.4 * 1.4, -80);
+scene.add(yacht);
+
+// ── Resize ─────────────────────────────────────────────
+window.addEventListener('resize', () => {
+  cam.aspect = W() / H();
+  cam.updateProjectionMatrix();
+  renderer.setSize(W(), H());
+});
+
+// ── Animate ────────────────────────────────────────────
+let lt = performance.now();
+function tick() {
+  requestAnimationFrame(tick);
+  const now = performance.now();
+  const t   = now / 1000;
+  lt = now;
+
+  waterMat.uniforms.uTime.value = t;
+
+  // Sun pulse
+  sunGlow.scale.setScalar(72 + Math.sin(t * 0.35) * 2.5);
+
+  // Gentle camera drift
+  cam.position.x = Math.sin(t * 0.06) * 0.6;
+  cam.position.y = 5 + Math.sin(t * 0.09) * 0.22;
+  cam.lookAt(0, 0.5, -20);
+
+  // Yacht bob + yaw
+  yacht.position.y = 1.4 * 1.4 + Math.sin(t * 0.52) * 0.14;
+  yacht.rotation.z = Math.sin(t * 0.38) * 0.009;
+
+  renderer.render(scene, cam);
+}
+tick();
+</script>
+
+
+</body></html>
