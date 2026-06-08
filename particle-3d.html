@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Particle 3D — Nano Galaxy</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;overflow:hidden;font-family:'Arial',sans-serif}
+canvas{display:block}
+
+#ui{position:fixed;bottom:36px;left:50%;transform:translateX(-50%);display:flex;gap:10px;z-index:10;flex-wrap:wrap;justify-content:center;max-width:900px}
+.btn{padding:9px 20px;border:1px solid rgba(100,180,255,0.2);background:rgba(0,0,0,0.7);color:rgba(150,200,255,0.7);font-size:0.62rem;letter-spacing:0.18em;text-transform:uppercase;cursor:pointer;border-radius:100px;transition:all 0.3s;backdrop-filter:blur(10px)}
+.btn:hover,.btn.active{border-color:rgba(100,180,255,0.9);color:#fff;background:rgba(100,180,255,0.12);box-shadow:0 0 20px rgba(100,180,255,0.25)}
+
+#info{position:fixed;top:28px;left:50%;transform:translateX(-50%);color:rgba(150,200,255,0.4);font-size:0.6rem;letter-spacing:0.3em;text-transform:uppercase;text-align:center;pointer-events:none}
+#shape-name{position:fixed;top:60px;left:50%;transform:translateX(-50%);font-size:2rem;font-weight:800;letter-spacing:0.15em;text-transform:uppercase;opacity:0;transition:opacity 0.5s;pointer-events:none;background:linear-gradient(135deg,#6c63ff,#00d4ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+
+#color-ui{position:fixed;right:28px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:10px;z-index:10}
+.cbtn{width:32px;height:32px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:all 0.3s}
+.cbtn:hover,.cbtn.active{border-color:white;transform:scale(1.2)}
+
+#sound-btn{position:fixed;top:28px;right:28px;padding:8px 16px;border:1px solid rgba(100,180,255,0.2);background:rgba(0,0,0,0.7);color:rgba(150,200,255,0.6);font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;border-radius:100px;z-index:10;transition:all 0.3s}
+#sound-btn:hover{border-color:rgba(100,180,255,0.8);color:#fff}
+
+#particle-count{position:fixed;top:28px;left:28px;color:rgba(100,180,255,0.4);font-size:0.58rem;letter-spacing:0.2em}
+</style>
+</head>
+<body>
+<div id="info">Drag to rotate &nbsp;·&nbsp; Scroll to zoom</div>
+<div id="shape-name" id="shapeName"></div>
+<div id="particle-count">PARTICLES: <span id="pcnt">10000</span></div>
+<button id="sound-btn" onclick="toggleSound()">♪ Sound OFF</button>
+
+<canvas id="c"></canvas>
+
+<div id="color-ui">
+  <div class="cbtn active" style="background:linear-gradient(135deg,#6c63ff,#00d4ff)" onclick="setColorMode(0)" title="Cosmic"></div>
+  <div class="cbtn" style="background:linear-gradient(135deg,#ff6b6b,#ffd93d)" onclick="setColorMode(1)" title="Fire"></div>
+  <div class="cbtn" style="background:linear-gradient(135deg,#00ff88,#00d4ff)" onclick="setColorMode(2)" title="Neon"></div>
+  <div class="cbtn" style="background:linear-gradient(135deg,#ff9a9e,#fad0c4)" onclick="setColorMode(3)" title="Rose"></div>
+  <div class="cbtn" style="background:linear-gradient(135deg,#f7971e,#ffd200)" onclick="setColorMode(4)" title="Gold"></div>
+  <div class="cbtn" style="background:linear-gradient(135deg,#fff,#aaa)" onclick="setColorMode(5)" title="White"></div>
+</div>
+
+<div id="ui">
+  <button class="btn active" onclick="morphTo(0)">🌐 Sphere</button>
+  <button class="btn" onclick="morphTo(1)">🍩 Torus</button>
+  <button class="btn" onclick="morphTo(2)">🌌 Galaxy</button>
+  <button class="btn" onclick="morphTo(3)">🧬 DNA</button>
+  <button class="btn" onclick="morphTo(4)">📦 Cube</button>
+  <button class="btn" onclick="morphTo(5)">❤️ Heart</button>
+  <button class="btn" onclick="morphTo(6)">🚀 Rocket</button>
+  <button class="btn" onclick="morphTo(7)">⭐ Star</button>
+  <button class="btn" onclick="morphTo(8)">👤 Human</button>
+  <button class="btn" onclick="morphTo(9)">🌀 Vortex</button>
+  <button class="btn" onclick="morphTo(10)">💎 Diamond</button>
+  <button class="btn" onclick="morphTo(11)">🦋 Butterfly</button>
+</div>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+let W = canvas.width = window.innerWidth;
+let H = canvas.height = window.innerHeight;
+
+const N = 10000;
+const pos    = new Float32Array(N * 3);
+const target = new Float32Array(N * 3);
+const vel    = new Float32Array(N * 3);
+const col    = new Float32Array(N * 3);
+
+let rotX = 0.3, rotY = 0.5, zoom = 1;
+let dragging = false, lastMX = 0, lastMY = 0;
+let colorMode = 0;
+let currentShape = 0;
+let soundOn = false;
+let audioCtx = null;
+let morphProgress = 0;
+
+// Init
+for(let i = 0; i < N; i++){
+  pos[i*3]   = (Math.random()-0.5)*5;
+  pos[i*3+1] = (Math.random()-0.5)*5;
+  pos[i*3+2] = (Math.random()-0.5)*5;
+}
+
+// ── COLOR MODES ──
+function applyColor(i, x, y, z, extra){
+  const mode = colorMode;
+  if(mode===0){ // Cosmic
+    col[i*3]   = 0.2+extra*0.4+(y+2)*0.15;
+    col[i*3+1] = 0.4+extra*0.3;
+    col[i*3+2] = 0.8+extra*0.2;
+  } else if(mode===1){ // Fire
+    col[i*3]   = 0.8+extra*0.2;
+    col[i*3+1] = 0.2+extra*0.4;
+    col[i*3+2] = extra*0.1;
+  } else if(mode===2){ // Neon
+    col[i*3]   = extra*0.2;
+    col[i*3+1] = 0.7+extra*0.3;
+    col[i*3+2] = 0.6+extra*0.4;
+  } else if(mode===3){ // Rose
+    col[i*3]   = 0.9+extra*0.1;
+    col[i*3+1] = 0.4+extra*0.3;
+    col[i*3+2] = 0.5+extra*0.3;
+  } else if(mode===4){ // Gold
+    col[i*3]   = 0.9+extra*0.1;
+    col[i*3+1] = 0.7+extra*0.2;
+    col[i*3+2] = 0.1+extra*0.2;
+  } else { // White
+    const v = 0.7+extra*0.3;
+    col[i*3]=v; col[i*3+1]=v; col[i*3+2]=v;
+  }
+}
+
+// ── SHAPES ──
+function makeSphere(){
+  for(let i=0;i<N;i++){
+    const phi=Math.acos(2*Math.random()-1);
+    const theta=Math.random()*Math.PI*2;
+    const r=1.5+(Math.random()-0.5)*0.06;
+    target[i*3]=r*Math.sin(phi)*Math.cos(theta);
+    target[i*3+1]=r*Math.cos(phi);
+    target[i*3+2]=r*Math.sin(phi)*Math.sin(theta);
+    applyColor(i,target[i*3],target[i*3+1],target[i*3+2],phi/Math.PI);
+  }
+}
+
+function makeTorus(){
+  const R=1.1,r=0.45;
+  for(let i=0;i<N;i++){
+    const u=Math.random()*Math.PI*2, v=Math.random()*Math.PI*2;
+    target[i*3]=(R+r*Math.cos(v))*Math.cos(u);
+    target[i*3+1]=r*Math.sin(v);
+    target[i*3+2]=(R+r*Math.cos(v))*Math.sin(u);
+    applyColor(i,target[i*3],target[i*3+1],target[i*3+2],Math.abs(Math.sin(u)));
+  }
+}
+
+function makeGalaxy(){
+  const arms=4;
+  for(let i=0;i<N;i++){
+    const arm=Math.floor(Math.random()*arms);
+    const r=0.15+Math.pow(Math.random(),0.7)*2.0;
+    const spin=r*2.8;
+    const angle=(arm/arms)*Math.PI*2+spin+(Math.random()-0.5)*0.4;
+    target[i*3]=r*Math.cos(angle)+(Math.random()-0.5)*0.12;
+    target[i*3+1]=(Math.random()-0.5)*0.18*Math.exp(-r*0.6);
+    target[i*3+2]=r*Math.sin(angle)+(Math.random()-0.5)*0.12;
+    applyColor(i,target[i*3],target[i*3+1],target[i*3+2],r/2);
+  }
+}
+
+function makeDNA(){
+  for(let i=0;i<N;i++){
+    const t2=(i/N)*Math.PI*16-Math.PI*8;
+    const strand=i%3;
+    let x,y,z;
+    if(strand<2){
+      const off=strand*Math.PI;
+      x=Math.cos(t2+off)*0.7; z=Math.sin(t2+off)*0.7; y=t2*0.18;
+    } else {
+      const seg=Math.floor(i/3), t3=(seg/(N/3))*Math.PI*16-Math.PI*8;
+      if(seg%5===0){
+        const f=(i%3)/2;
+        x=Math.cos(t3)*0.7*(1-f)+Math.cos(t3+Math.PI)*0.7*f;
+        z=Math.sin(t3)*0.7*(1-f)+Math.sin(t3+Math.PI)*0.7*f;
+        y=t3*0.18;
+      } else { x=(Math.random()-0.5)*0.15; y=t3*0.18; z=(Math.random()-0.5)*0.15; }
+    }
+    target[i*3]=x; target[i*3+1]=y; target[i*3+2]=z;
+    applyColor(i,x,y,z,strand/2);
+  }
+}
+
+function makeCube(){
+  for(let i=0;i<N;i++){
+    const face=Math.floor(Math.random()*6);
+    const a=(Math.random()-0.5)*2, b=(Math.random()-0.5)*2, s=1.3;
+    let x,y,z;
+    if(face===0){x=s;y=a*s;z=b*s;}
+    else if(face===1){x=-s;y=a*s;z=b*s;}
+    else if(face===2){y=s;x=a*s;z=b*s;}
+    else if(face===3){y=-s;x=a*s;z=b*s;}
+    else if(face===4){z=s;x=a*s;y=b*s;}
+    else{z=-s;x=a*s;y=b*s;}
+    target[i*3]=x;target[i*3+1]=y;target[i*3+2]=z;
+    applyColor(i,x,y,z,face/5);
+  }
+}
+
+function makeHeart(){
+  for(let i=0;i<N;i++){
+    const t2=Math.random()*Math.PI*2;
+    const x2=16*Math.pow(Math.sin(t2),3);
+    const y2=13*Math.cos(t2)-5*Math.cos(2*t2)-2*Math.cos(3*t2)-Math.cos(4*t2);
+    const z2=(Math.random()-0.5)*3*Math.exp(-Math.pow(Math.abs(t2-Math.PI),2)*0.3);
+    target[i*3]=x2*0.09+(Math.random()-0.5)*0.04;
+    target[i*3+1]=y2*0.09+(Math.random()-0.5)*0.04;
+    target[i*3+2]=z2*0.18;
+    applyColor(i,target[i*3],target[i*3+1],target[i*3+2],(y2+8)/22);
+  }
+}
+
+function makeRocket(){
+  for(let i=0;i<N;i++){
+    const r=Math.random(), angle=Math.random()*Math.PI*2;
+    let x,y,z;
+    const part=Math.floor(Math.random()*5);
+    if(part<2){ // Body cylinder
+      const h=(Math.random()-0.5)*2.4;
+      const rad=0.25*(1-Math.abs(h)*0.15);
+      x=rad*Math.cos(angle); y=h; z=rad*Math.sin(angle);
+    } else if(part===2){ // Nose cone
+      const h=Math.random()*0.8;
+      const rad=(1-h)*0.25;
+      x=rad*Math.cos(angle); y=1.2+h; z=rad*Math.sin(angle);
+    } else if(part===3){ // Fins
+      const fin=Math.floor(Math.random()*4);
+      const fa=fin*Math.PI/2;
+      x=(0.25+Math.random()*0.35)*Math.cos(fa);
+      y=-1.2+Math.random()*0.8;
+      z=(0.25+Math.random()*0.35)*Math.sin(fa);
+    } else { // Flame
+      const h=-(1.2+Math.random()*0.6);
+      const rad=0.12+Math.random()*0.08;
+      x=rad*Math.cos(angle); y=h; z=rad*Math.sin(angle);
+    }
+    target[i*3]=x; target[i*3+1]=y; target[i*3+2]=z;
+    applyColor(i,x,y,z,part===4?1:r);
+  }
+}
+
+function makeStar(){
+  const points=6;
+  for(let i=0;i<N;i++){
+    const layer=Math.floor(Math.random()*3);
+    if(layer===0){ // Surface
+      const phi=Math.random()*Math.PI*2;
+      const theta=Math.random()*Math.PI*2;
+      const pIdx=Math.floor(Math.random()*points);
+      const angle=pIdx*Math.PI*2/points+phi*0.3;
+      const outerR=1.5, innerR=0.6;
+      const r=Math.random()<0.5?outerR:innerR;
+      const t2=Math.floor(Math.random()*points)*Math.PI*2/points+Math.random()*Math.PI/points;
+      const r2=innerR+(outerR-innerR)*(Math.random()<0.5?1:0);
+      target[i*3]=r2*Math.cos(t2);
+      target[i*3+1]=(Math.random()-0.5)*0.3;
+      target[i*3+2]=r2*Math.sin(t2);
+    } else if(layer===1){ // Rays
+      const rayAngle=(Math.floor(Math.random()*points)*2)*Math.PI/points;
+      const len=Math.random()*0.8;
+      target[i*3]=(1.5+len)*Math.cos(rayAngle);
+      target[i*3+1]=(Math.random()-0.5)*0.15;
+      target[i*3+2]=(1.5+len)*Math.sin(rayAngle);
+    } else { // Center glow
+      const phi=Math.acos(2*Math.random()-1);
+      const theta=Math.random()*Math.PI*2;
+      const r=Math.random()*0.5;
+      target[i*3]=r*Math.sin(phi)*Math.cos(theta);
+      target[i*3+1]=r*Math.cos(phi);
+      target[i*3+2]=r*Math.sin(phi)*Math.sin(theta);
+    }
+    applyColor(i,target[i*3],target[i*3+1],target[i*3+2],Math.random());
+  }
+}
+
+function makeHuman(){
+  for(let i=0;i<N;i++){
+    const part=Math.floor(Math.random()*7);
+    let x,y,z;
+    if(part===0){ // Head
+      const phi=Math.acos(2*Math.random()-1), theta=Math.random()*Math.PI*2;
+      x=0.28*Math.sin(phi)*Math.cos(theta);
+      y=1.55+0.28*Math.cos(phi);
+      z=0.28*Math.sin(phi)*Math.sin(theta);
+    } else if(part===1){ // Torso
+      x=(Math.random()-0.5)*0.55;
+      y=0.5+Math.random()*0.8;
+      z=(Math.random()-0.5)*0.22;
+    } else if(part===2||part===3){ // Arms
+      const side=part===2?1:-1;
+      const h=Math.random()*1.1;
+      x=side*(0.38+h*0.08);
+      y=1.3-h;
+      z=(Math.random()-0.5)*0.12;
+    } else if(part===4||part===5){ // Legs
+      const side=part===4?0.18:-0.18;
+      const h=Math.random()*1.2;
+      x=side;
+      y=-0.5-h*0.8;
+      z=(Math.random()-0.5)*0.12;
+    } else { // Hips
+      x=(Math.random()-0.5)*0.5;
+      y=0.3+Math.random()*0.25;
+      z=(Math.random()-0.5)*0.2;
+    }
+    target[i*3]=x; target[i*3+1]=y; target[i*3+2]=z;
+    applyColor(i,x,y,z,(y+2)/4);
+  }
+}
+
+function makeVortex(){
+  for(let i=0;i<N;i++){
+    const t2=Math.random()*Math.PI*8;
+    const r=t2/8*1.8+0.05;
+    const y=(Math.random()-0.5)*0.15+(t2/8-0.5)*2.5;
+    const noise=(Math.random()-0.5)*0.12;
+    target[i*3]=(r+noise)*Math.cos(t2);
+    target[i*3+1]=y;
+    target[i*3+2]=(r+noise)*Math.sin(t2);
+    applyColor(i,target[i*3],y,target[i*3+2],t2/(Math.PI*8));
+  }
+}
+
+function makeDiamond(){
+  for(let i=0;i<N;i++){
+    const face=Math.floor(Math.random()*8);
+    const u=Math.random(), v=Math.random()*(1-u);
+    const w=1-u-v;
+    const top=[0,1.2,0];
+    const bot=[0,-0.8,0];
+    const mid=[];
+    for(let k=0;k<4;k++) mid.push([1.1*Math.cos(k*Math.PI/2),0.1,1.1*Math.sin(k*Math.PI/2)]);
+    let pts;
+    if(face<4) pts=[top,mid[face],mid[(face+1)%4]];
+    else pts=[bot,mid[face-4],mid[(face-3)%4]];
+    const x=u*pts[0][0]+v*pts[1][0]+w*pts[2][0];
+    const y=u*pts[0][1]+v*pts[1][1]+w*pts[2][1];
+    const z=u*pts[0][2]+v*pts[1][2]+w*pts[2][2];
+    target[i*3]=x; target[i*3+1]=y; target[i*3+2]=z;
+    applyColor(i,x,y,z,face/7);
+  }
+}
+
+function makeButterfly(){
+  for(let i=0;i<N;i++){
+    const t2=Math.random()*Math.PI*2;
+    // Butterfly curve: r = e^(sin t) - 2cos(4t) + sin^5((2t-pi)/24)
+    const r=Math.exp(Math.sin(t2))-2*Math.cos(4*t2)+Math.pow(Math.sin((2*t2-Math.PI)/24),5);
+    const scale=0.45;
+    const x=r*Math.cos(t2)*scale;
+    const y=r*Math.sin(t2)*scale;
+    const z=(Math.random()-0.5)*0.2*Math.abs(Math.sin(t2*2));
+    target[i*3]=x; target[i*3+1]=y; target[i*3+2]=z;
+    applyColor(i,x,y,z,Math.abs(Math.sin(t2)));
+  }
+}
+
+const shapes=[makeSphere,makeTorus,makeGalaxy,makeDNA,makeCube,makeHeart,makeRocket,makeStar,makeHuman,makeVortex,makeDiamond,makeButterfly];
+const shapeNames=['Sphere','Torus','Galaxy','DNA Helix','Cube','Heart','Rocket','Star','Human','Vortex','Diamond','Butterfly'];
+
+makeSphere();
+
+function morphTo(idx){
+  currentShape=idx;
+  shapes[idx]();
+  document.querySelectorAll('.btn').forEach((b,i)=>b.classList.toggle('active',i===idx));
+  // Show name
+  const nameEl=document.getElementById('shape-name');
+  nameEl.textContent=shapeNames[idx];
+  nameEl.style.opacity='1';
+  setTimeout(()=>nameEl.style.opacity='0',1800);
+  playMorphSound();
+}
+
+function setColorMode(m){
+  colorMode=m;
+  document.querySelectorAll('.cbtn').forEach((b,i)=>b.classList.toggle('active',i===m));
+  shapes[currentShape]();
+}
+
+// ── PROJECT ──
+function project(x,y,z){
+  const cosY=Math.cos(rotY),sinY=Math.sin(rotY);
+  const x1=x*cosY-z*sinY, z1=x*sinY+z*cosY;
+  const cosX=Math.cos(rotX),sinX=Math.sin(rotX);
+  const y2=y*cosX-z1*sinX, z2=y*sinX+z1*cosX;
+  const fov=4.5*zoom;
+  const scale=fov/(fov+z2+2.5);
+  return { sx:W/2+x1*scale*Math.min(W,H)*0.3, sy:H/2-y2*scale*Math.min(W,H)*0.3, z:z2, scale };
+}
+
+// ── SOUND ──
+function initAudio(){
+  if(audioCtx) return;
+  audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+}
+
+function playMorphSound(){
+  if(!soundOn||!audioCtx) return;
+  const osc=audioCtx.createOscillator();
+  const gain=audioCtx.createGain();
+  osc.connect(gain); gain.connect(audioCtx.destination);
+  osc.type='sine';
+  osc.frequency.setValueAtTime(300,audioCtx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(800,audioCtx.currentTime+0.3);
+  osc.frequency.exponentialRampToValueAtTime(200,audioCtx.currentTime+0.8);
+  gain.gain.setValueAtTime(0.15,audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.8);
+  osc.start(); osc.stop(audioCtx.currentTime+0.8);
+}
+
+function playAmbient(){
+  if(!soundOn||!audioCtx) return;
+  const osc=audioCtx.createOscillator();
+  const gain=audioCtx.createGain();
+  const filter=audioCtx.createBiquadFilter();
+  osc.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+  osc.type='sawtooth';
+  filter.type='lowpass'; filter.frequency.value=200;
+  osc.frequency.value=60+currentShape*8;
+  gain.gain.value=0.02;
+  osc.start();
+  setTimeout(()=>{ gain.gain.exponentialRampToValueAtTime(0.0001,audioCtx.currentTime+2); osc.stop(audioCtx.currentTime+2); },1000);
+}
+
+function toggleSound(){
+  initAudio();
+  soundOn=!soundOn;
+  document.getElementById('sound-btn').textContent=soundOn?'♪ Sound ON':'♪ Sound OFF';
+  if(soundOn) playAmbient();
+}
+
+// ── ANIMATE ──
+let t=0, frame=0;
+const SPRING=0.055, DAMP=0.84;
+// Sorted indices buffer
+const sortedIdx=new Uint16Array(N);
+for(let i=0;i<N;i++) sortedIdx[i]=i;
+
+// Background particles (extra atmosphere)
+const bgStars=Array.from({length:300},()=>({
+  x:Math.random()*window.innerWidth, y:Math.random()*window.innerHeight,
+  r:Math.random()*1.2+0.2, op:Math.random()*0.5+0.1,
+  tw:Math.random()*Math.PI*2
+}));
+
+function animate(){
+  requestAnimationFrame(animate);
+  t+=0.01; frame++;
+
+  if(!dragging) rotY+=0.003;
+
+  // Clear with trail effect
+  ctx.fillStyle='rgba(0,0,0,0.16)';
+  ctx.fillRect(0,0,W,H);
+
+  // BG stars
+  bgStars.forEach(s=>{
+    s.tw+=0.008;
+    ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(180,210,255,${s.op*Math.abs(Math.sin(s.tw))})`;
+    ctx.fill();
+  });
+
+  // Spring physics
+  for(let i=0;i<N;i++){
+    vel[i*3]  =vel[i*3]*DAMP+(target[i*3]-pos[i*3])*SPRING;
+    vel[i*3+1]=vel[i*3+1]*DAMP+(target[i*3+1]-pos[i*3+1])*SPRING;
+    vel[i*3+2]=vel[i*3+2]*DAMP+(target[i*3+2]-pos[i*3+2])*SPRING;
+    pos[i*3]  +=vel[i*3];
+    pos[i*3+1]+=vel[i*3+1];
+    pos[i*3+2]+=vel[i*3+2];
+  }
+
+  // Z-sort every 3 frames for perf
+  if(frame%3===0){
+    const zArr=new Float32Array(N);
+    for(let i=0;i<N;i++){
+      const cosY=Math.cos(rotY),sinY=Math.sin(rotY);
+      const x1=pos[i*3]*sinY+pos[i*3+2]*cosY;
+      const cosX=Math.cos(rotX),sinX=Math.sin(rotX);
+      zArr[i]=pos[i*3+1]*sinX+x1*cosX;
+    }
+    sortedIdx.sort((a,b)=>zArr[a]-zArr[b]);
+  }
+
+  // Draw particles
+  for(let si=0;si<N;si++){
+    const i=sortedIdx[si];
+    const {sx,sy,z,scale}=project(pos[i*3],pos[i*3+1],pos[i*3+2]);
+    if(sx<-40||sx>W+40||sy<-40||sy>H+40) continue;
+    const depth=Math.max(0,Math.min(1,(z+3)/7));
+    const r=col[i*3],g=col[i*3+1],b=col[i*3+2];
+    const size=Math.max(0.3,scale*2.8);
+    const alpha=depth*0.88+0.08;
+    const R=Math.floor(r*255),G=Math.floor(g*255),B=Math.floor(b*255);
+
+    // Glow for larger particles
+    if(size>1.5&&si%4===0){
+      const grd=ctx.createRadialGradient(sx,sy,0,sx,sy,size*3);
+      grd.addColorStop(0,`rgba(${R},${G},${B},${alpha*0.2})`);
+      grd.addColorStop(1,'transparent');
+      ctx.fillStyle=grd;
+      ctx.beginPath(); ctx.arc(sx,sy,size*3,0,Math.PI*2); ctx.fill();
+    }
+
+    ctx.beginPath(); ctx.arc(sx,sy,size,0,Math.PI*2);
+    ctx.fillStyle=`rgba(${R},${G},${B},${alpha})`;
+    ctx.fill();
+  }
+
+  // Center nebula glow
+  const cg=ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,250);
+  cg.addColorStop(0,`rgba(${colorMode===1?'255,80,20':colorMode===2?'0,200,120':colorMode===3?'255,100,150':colorMode===4?'255,200,0':'80,100,255'},0.04)`);
+  cg.addColorStop(1,'transparent');
+  ctx.fillStyle=cg; ctx.fillRect(0,0,W,H);
+
+  // Ambient sound pulse
+  if(soundOn&&frame%180===0) playAmbient();
+}
+
+animate();
+
+// ── CONTROLS ──
+canvas.addEventListener('mousedown',e=>{ dragging=true; lastMX=e.clientX; lastMY=e.clientY; });
+window.addEventListener('mousemove',e=>{
+  if(!dragging) return;
+  rotY+=(e.clientX-lastMX)*0.005;
+  rotX+=(e.clientY-lastMY)*0.005;
+  rotX=Math.max(-Math.PI/2,Math.min(Math.PI/2,rotX));
+  lastMX=e.clientX; lastMY=e.clientY;
+});
+window.addEventListener('mouseup',()=>dragging=false);
+canvas.addEventListener('wheel',e=>{
+  zoom*=e.deltaY>0?0.93:1.08;
+  zoom=Math.max(0.25,Math.min(4,zoom));
+  e.preventDefault();
+},{passive:false});
+
+// Touch
+canvas.addEventListener('touchstart',e=>{ dragging=true; lastMX=e.touches[0].clientX; lastMY=e.touches[0].clientY; },{passive:true});
+canvas.addEventListener('touchmove',e=>{
+  if(!dragging) return;
+  rotY+=(e.touches[0].clientX-lastMX)*0.005;
+  rotX+=(e.touches[0].clientY-lastMY)*0.005;
+  rotX=Math.max(-Math.PI/2,Math.min(Math.PI/2,rotX));
+  lastMX=e.touches[0].clientX; lastMY=e.touches[0].clientY;
+},{passive:true});
+canvas.addEventListener('touchend',()=>dragging=false);
+
+// Keyboard shortcuts
+window.addEventListener('keydown',e=>{
+  const k=parseInt(e.key);
+  if(k>=1&&k<=9) morphTo(k-1);
+  if(e.key==='0') morphTo(9);
+  if(e.key==='r'||e.key==='R') { rotX=0.3; rotY=0.5; zoom=1; }
+});
+
+window.addEventListener('resize',()=>{ W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight; });
+</script>
+</body>
+</html>
