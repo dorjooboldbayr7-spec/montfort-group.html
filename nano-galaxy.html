@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nano Galaxy — Space Technology</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#02040a;
+  --bg2:#050810;
+  --white:#eef2ff;
+  --muted:rgba(200,210,255,0.5);
+  --accent:#6c63ff;
+  --accent2:#00d4ff;
+  --glow:rgba(108,99,255,0.4);
+  --gold:#c9a96e;
+}
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{background:var(--bg);color:var(--white);font-family:'Space Grotesk',sans-serif;font-weight:300;overflow-x:hidden;cursor:none}
+
+/* CURSOR */
+.cur{width:6px;height:6px;background:var(--accent2);border-radius:50%;position:fixed;z-index:9998;pointer-events:none;transform:translate(-50%,-50%);box-shadow:0 0 10px var(--accent2)}
+.cur-ring{width:36px;height:36px;border:1px solid rgba(108,99,255,0.5);border-radius:50%;position:fixed;z-index:9997;pointer-events:none;transform:translate(-50%,-50%);transition:width 0.3s,height 0.3s,left 0.1s,top 0.1s}
+
+/* LOADER */
+#loader{position:fixed;inset:0;z-index:9999;background:#01020a;display:flex;align-items:center;justify-content:center;transition:opacity 1s,visibility 1s}
+#loader.hidden{opacity:0;visibility:hidden;pointer-events:none}
+.loader-inner{display:flex;flex-direction:column;align-items:center;gap:24px}
+.loader-ring{width:60px;height:60px;border:1px solid rgba(108,99,255,0.2);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-text{font-family:'Syne',sans-serif;font-size:0.9rem;letter-spacing:0.5em;color:rgba(108,99,255,0.8);text-transform:uppercase}
+.loader-bar{width:160px;height:1px;background:rgba(255,255,255,0.06)}
+.loader-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0;transition:width 0.05s}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:24px 60px;transition:background 0.4s}
+nav.scrolled{background:rgba(2,4,10,0.92);backdrop-filter:blur(20px);border-bottom:1px solid rgba(108,99,255,0.1)}
+.nav-logo{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;letter-spacing:0.05em;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none}
+.nav-links{display:flex;gap:36px;list-style:none}
+.nav-links a{font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color 0.3s}
+.nav-links a:hover{color:var(--white)}
+.nav-cta{padding:10px 24px;border:1px solid var(--accent);border-radius:2px;font-size:0.68rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent);text-decoration:none;transition:all 0.3s;cursor:pointer;background:none}
+.nav-cta:hover{background:var(--accent);color:var(--white);box-shadow:0 0 20px var(--glow)}
+
+/* HERO */
+.hero{position:relative;height:100vh;overflow:hidden;display:flex;align-items:center;justify-content:center}
+#heroCanvas{position:absolute;inset:0;width:100%;height:100%}
+.hero-content{position:relative;z-index:10;text-align:center;max-width:900px;padding:0 40px}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border:1px solid rgba(108,99,255,0.3);border-radius:100px;font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent2);margin-bottom:28px;opacity:0;animation:fadeUp 1s 0.5s forwards}
+.hero-badge span{width:6px;height:6px;background:var(--accent2);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
+.hero-title{font-family:'Syne',sans-serif;font-size:clamp(3rem,8vw,7.5rem);font-weight:800;line-height:0.95;letter-spacing:-0.02em;margin-bottom:28px;opacity:0;animation:fadeUp 1s 0.7s forwards}
+.hero-title .line1{display:block;color:var(--white)}
+.hero-title .line2{display:block;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-desc{font-size:1rem;line-height:1.9;color:var(--muted);max-width:560px;margin:0 auto 40px;opacity:0;animation:fadeUp 1s 0.9s forwards}
+.hero-btns{display:flex;gap:16px;justify-content:center;opacity:0;animation:fadeUp 1s 1.1s forwards}
+.btn-primary{padding:14px 36px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:2px;font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--white);text-decoration:none;transition:all 0.3s;border:none;cursor:pointer;box-shadow:0 0 30px rgba(108,99,255,0.3)}
+.btn-primary:hover{box-shadow:0 0 50px rgba(108,99,255,0.6);transform:translateY(-2px)}
+.btn-secondary{padding:14px 36px;border:1px solid rgba(200,210,255,0.2);border-radius:2px;font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:all 0.3s;cursor:pointer;background:none}
+.btn-secondary:hover{border-color:var(--accent);color:var(--white)}
+.scroll-cue{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);z-index:10;display:flex;flex-direction:column;align-items:center;gap:10px;font-size:0.5rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--muted);opacity:0;animation:fadeUp 1s 1.6s forwards}
+.scroll-line{width:1px;height:50px;background:linear-gradient(to bottom,var(--accent),transparent);animation:scrollAnim 2s 2s ease-in-out infinite}
+@keyframes scrollAnim{0%,100%{transform:scaleY(0);transform-origin:top;opacity:0}50%{transform:scaleY(1);transform-origin:top;opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+
+/* STATS BAR */
+.stats-bar{background:rgba(108,99,255,0.06);border-top:1px solid rgba(108,99,255,0.12);border-bottom:1px solid rgba(108,99,255,0.12);padding:40px 60px;display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+.stat-item{text-align:center;padding:0 20px;border-right:1px solid rgba(108,99,255,0.12)}
+.stat-item:last-child{border-right:none}
+.stat-num{font-family:'Syne',sans-serif;font-size:2.4rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;margin-bottom:6px}
+.stat-label{font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted)}
+
+/* ABOUT SECTION */
+.about-section{padding:140px 60px;display:grid;grid-template-columns:1fr 1fr;gap:100px;align-items:center;position:relative;overflow:hidden}
+.about-section::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(108,99,255,0.05) 0%,transparent 70%);pointer-events:none}
+.about-visual{position:relative;height:450px}
+#aboutCanvas{width:100%;height:100%}
+.about-text .section-tag{font-size:0.6rem;letter-spacing:0.4em;text-transform:uppercase;color:var(--accent2);margin-bottom:20px}
+.about-text h2{font-family:'Syne',sans-serif;font-size:clamp(2rem,4vw,3.2rem);font-weight:800;line-height:1.1;margin-bottom:28px}
+.about-text h2 em{font-style:normal;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.about-text p{font-size:0.88rem;line-height:2;color:var(--muted);margin-bottom:20px}
+.about-link{display:inline-flex;align-items:center;gap:10px;font-size:0.68rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);text-decoration:none;margin-top:12px;transition:gap 0.3s}
+.about-link:hover{gap:18px}
+
+/* SERVICES */
+.services{padding:140px 60px;background:var(--bg2)}
+.services-header{text-align:center;margin-bottom:80px}
+.section-tag{font-size:0.6rem;letter-spacing:0.4em;text-transform:uppercase;color:var(--accent2);margin-bottom:16px}
+.section-title{font-family:'Syne',sans-serif;font-size:clamp(2rem,4vw,3.5rem);font-weight:800;line-height:1.1}
+.section-title em{font-style:normal;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.services-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(108,99,255,0.1)}
+.service-card{background:var(--bg2);padding:56px 44px;position:relative;overflow:hidden;transition:background 0.4s;cursor:pointer}
+.service-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(108,99,255,0.05),transparent);opacity:0;transition:opacity 0.4s}
+.service-card:hover{background:#060a14}
+.service-card:hover::before{opacity:1}
+.service-icon{width:56px;height:56px;margin-bottom:28px;position:relative}
+.service-icon canvas{width:56px;height:56px}
+.service-num{position:absolute;top:44px;right:44px;font-family:'Syne',sans-serif;font-size:3.5rem;font-weight:800;color:rgba(108,99,255,0.06);line-height:1;transition:color 0.4s}
+.service-card:hover .service-num{color:rgba(108,99,255,0.12)}
+.service-title{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:700;margin-bottom:16px;color:var(--white)}
+.service-desc{font-size:0.78rem;line-height:1.9;color:var(--muted)}
+.service-tag{display:inline-block;margin-top:20px;padding:4px 12px;border:1px solid rgba(108,99,255,0.25);border-radius:100px;font-size:0.58rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent)}
+
+/* PLANET SECTION */
+.planet-section{position:relative;height:600px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+#planetCanvas{position:absolute;inset:0;width:100%;height:100%}
+.planet-content{position:relative;z-index:5;text-align:center}
+.planet-content h2{font-family:'Syne',sans-serif;font-size:clamp(2rem,5vw,4rem);font-weight:800;margin-bottom:20px}
+.planet-content p{font-size:0.85rem;color:var(--muted);max-width:480px;margin:0 auto 36px;line-height:1.9}
+
+/* TECH SECTION */
+.tech-section{padding:140px 60px;display:grid;grid-template-columns:1fr 1fr;gap:100px;align-items:center}
+.tech-list{display:flex;flex-direction:column;gap:0}
+.tech-item{padding:28px 0;border-bottom:1px solid rgba(108,99,255,0.1);display:flex;align-items:center;gap:24px;cursor:pointer;transition:all 0.3s}
+.tech-item:hover .tech-num{color:var(--accent)}
+.tech-item:hover .tech-name{color:var(--white)}
+.tech-num{font-family:'Syne',sans-serif;font-size:0.7rem;color:rgba(108,99,255,0.3);width:32px;transition:color 0.3s}
+.tech-name{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:600;color:var(--muted);transition:color 0.3s;flex:1}
+.tech-arrow{width:32px;height:32px;border:1px solid rgba(108,99,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.3s}
+.tech-item:hover .tech-arrow{opacity:1}
+.tech-visual{position:relative;height:500px}
+#techCanvas{width:100%;height:100%}
+
+/* CONTACT */
+.contact{padding:140px 60px;text-align:center;position:relative;overflow:hidden}
+#contactCanvas{position:absolute;inset:0;width:100%;height:100%;opacity:0.4;pointer-events:none}
+.contact-inner{position:relative;z-index:2;max-width:700px;margin:0 auto}
+.contact h2{font-family:'Syne',sans-serif;font-size:clamp(2.5rem,6vw,5rem);font-weight:800;line-height:1;margin-bottom:24px}
+.contact h2 em{font-style:normal;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.contact p{font-size:0.9rem;color:var(--muted);line-height:1.9;margin-bottom:48px}
+.contact-form{display:flex;gap:12px;max-width:480px;margin:0 auto}
+.contact-form input{flex:1;padding:14px 20px;background:rgba(108,99,255,0.08);border:1px solid rgba(108,99,255,0.2);border-radius:2px;color:var(--white);font-family:'Space Grotesk',sans-serif;font-size:0.82rem;outline:none;transition:border-color 0.3s}
+.contact-form input:focus{border-color:var(--accent)}
+.contact-form input::placeholder{color:rgba(200,210,255,0.3)}
+
+/* FOOTER */
+footer{padding:60px;border-top:1px solid rgba(108,99,255,0.1);display:flex;justify-content:space-between;align-items:center}
+.footer-logo{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.footer-links{display:flex;gap:32px}
+.footer-links a{font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color 0.2s}
+.footer-links a:hover{color:var(--white)}
+.footer-copy{font-size:0.62rem;color:rgba(200,210,255,0.25);letter-spacing:0.1em}
+
+/* REVEAL */
+.reveal{opacity:0;transform:translateY(32px);transition:opacity 0.9s cubic-bezier(0.16,1,0.3,1),transform 0.9s cubic-bezier(0.16,1,0.3,1)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+@media(max-width:900px){
+  nav{padding:18px 24px}.nav-links{display:none}
+  .about-section,.tech-section{grid-template-columns:1fr;padding:80px 24px;gap:50px}
+  .services{padding:80px 24px}.services-grid{grid-template-columns:1fr}
+  .stats-bar{grid-template-columns:1fr 1fr;padding:40px 24px}
+  .contact{padding:80px 24px}.contact-form{flex-direction:column}
+  footer{flex-direction:column;gap:28px;padding:40px 24px;text-align:center}
+  .footer-links{flex-wrap:wrap;justify-content:center}
+}
+</style>
+</head>
+<body>
+
+<div id="loader">
+  <div class="loader-inner">
+    <div class="loader-ring"></div>
+    <div class="loader-text">Nano Galaxy</div>
+    <div class="loader-bar"><div class="loader-fill" id="loaderFill"></div></div>
+  </div>
+</div>
+
+<div class="cur" id="cur"></div>
+<div class="cur-ring" id="curRing"></div>
+
+<nav id="nav">
+  <a href="#home" class="nav-logo">NANO GALAXY</a>
+  <ul class="nav-links">
+    <li><a href="#home">Home</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#tech">Technology</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="#contact" class="nav-cta">Get Started</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <canvas id="heroCanvas"></canvas>
+  <div class="hero-content">
+    <div class="hero-badge"><span></span>Next Generation Space Technology</div>
+    <h1 class="hero-title">
+      <span class="line1">Explore the</span>
+      <span class="line2">Universe</span>
+    </h1>
+    <p class="hero-desc">Nano Galaxy pioneers advanced space technology solutions — from satellite systems to deep space exploration. We are building the future of humanity beyond Earth.</p>
+    <div class="hero-btns">
+      <a href="#services" class="btn-primary">Our Technology</a>
+      <a href="#about" class="btn-secondary">Learn More</a>
+    </div>
+  </div>
+  <div class="scroll-cue">Scroll to explore<div class="scroll-line"></div></div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar" id="statsBar">
+  <div class="stat-item"><div class="stat-num" data-target="240" data-suffix="+">0</div><div class="stat-label">Satellites Deployed</div></div>
+  <div class="stat-item"><div class="stat-num" data-target="18" data-suffix="">0</div><div class="stat-label">Countries Reached</div></div>
+  <div class="stat-item"><div class="stat-num" data-target="99" data-suffix="%">0</div><div class="stat-label">Mission Success Rate</div></div>
+  <div class="stat-item"><div class="stat-num" data-target="12" data-suffix="">0</div><div class="stat-label">Years in Space</div></div>
+</div>
+
+<!-- ABOUT -->
+<section class="about-section" id="about">
+  <div class="about-visual reveal">
+    <canvas id="aboutCanvas"></canvas>
+  </div>
+  <div class="about-text reveal">
+    <p class="section-tag">About Nano Galaxy</p>
+    <h2>Pushing the <em>Boundaries</em> of Space Science</h2>
+    <p>Founded by a team of aerospace engineers and visionary technologists, Nano Galaxy develops cutting-edge nanosatellite systems, deep space propulsion, and advanced orbital mechanics solutions.</p>
+    <p>Our proprietary nano-engineering platform enables unprecedented miniaturization of space systems without compromising performance — making space accessible for everyone.</p>
+    <a href="#services" class="about-link">Explore our work <svg width="22" height="8" viewBox="0 0 22 8" fill="none"><path d="M0 4h20M17 1l3 3-3 3" stroke="#6c63ff" stroke-width="1"/></svg></a>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="services" id="services">
+  <div class="services-header reveal">
+    <p class="section-tag">What We Do</p>
+    <h2 class="section-title">Advanced Space <em>Solutions</em></h2>
+  </div>
+  <div class="services-grid">
+    <div class="service-card reveal">
+      <canvas class="service-icon" id="si0"></canvas>
+      <div class="service-num">01</div>
+      <div class="service-title">Nanosatellite Systems</div>
+      <p class="service-desc">Revolutionary miniaturized satellites delivering full mission capability at a fraction of traditional costs. Deployed in low Earth orbit for maximum coverage.</p>
+      <span class="service-tag">LEO Technology</span>
+    </div>
+    <div class="service-card reveal" style="transition-delay:0.1s">
+      <canvas class="service-icon" id="si1"></canvas>
+      <div class="service-num">02</div>
+      <div class="service-title">Deep Space Propulsion</div>
+      <p class="service-desc">Next-generation ion drive and plasma propulsion systems enabling efficient travel beyond the asteroid belt. Designed for long-duration deep space missions.</p>
+      <span class="service-tag">Propulsion Tech</span>
+    </div>
+    <div class="service-card reveal" style="transition-delay:0.2s">
+      <canvas class="service-icon" id="si2"></canvas>
+      <div class="service-num">03</div>
+      <div class="service-title">Orbital Analytics</div>
+      <p class="service-desc">AI-powered orbital mechanics and space weather prediction platform. Real-time collision avoidance and trajectory optimization for mission-critical operations.</p>
+      <span class="service-tag">AI Platform</span>
+    </div>
+    <div class="service-card reveal" style="transition-delay:0.3s">
+      <canvas class="service-icon" id="si3"></canvas>
+      <div class="service-num">04</div>
+      <div class="service-title">Space Communications</div>
+      <p class="service-desc">Quantum-encrypted inter-satellite communication networks with latency below 2ms. Reliable connectivity from ground to orbit and beyond.</p>
+      <span class="service-tag">Quantum Comms</span>
+    </div>
+    <div class="service-card reveal" style="transition-delay:0.4s">
+      <canvas class="service-icon" id="si4"></canvas>
+      <div class="service-num">05</div>
+      <div class="service-title">Earth Observation</div>
+      <p class="service-desc">Sub-meter resolution multispectral imaging constellation for environmental monitoring, disaster response, and agricultural intelligence worldwide.</p>
+      <span class="service-tag">Remote Sensing</span>
+    </div>
+    <div class="service-card reveal" style="transition-delay:0.5s">
+      <canvas class="service-icon" id="si5"></canvas>
+      <div class="service-num">06</div>
+      <div class="service-title">Mission Design</div>
+      <p class="service-desc">End-to-end mission architecture and systems engineering. From concept to launch and beyond, we guide your space mission to success.</p>
+      <span class="service-tag">Engineering</span>
+    </div>
+  </div>
+</section>
+
+<!-- PLANET -->
+<div class="planet-section" id="planetSection">
+  <canvas id="planetCanvas"></canvas>
+  <div class="planet-content reveal">
+    <p class="section-tag" style="color:var(--accent2)">Our Mission</p>
+    <h2 style="color:var(--white)">Beyond Earth,<br>Into the <em style="font-style:normal;background:linear-gradient(135deg,#6c63ff,#00d4ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Cosmos</em></h2>
+    <p>We believe humanity's future lies among the stars. Every technology we build brings us one step closer to becoming a multi-planetary civilization.</p>
+    <a href="#contact" class="btn-primary" style="display:inline-block">Join Our Mission</a>
+  </div>
+</div>
+
+<!-- TECH -->
+<section class="tech-section" id="tech">
+  <div class="reveal">
+    <p class="section-tag">Core Technologies</p>
+    <h2 class="section-title" style="margin-bottom:48px">Built for the <em>Future</em></h2>
+    <div class="tech-list">
+      <div class="tech-item"><span class="tech-num">01</span><span class="tech-name">Nano Propulsion Engine</span><div class="tech-arrow"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1 5h8M6 2l3 3-3 3" stroke="#6c63ff" stroke-width="1"/></svg></div></div>
+      <div class="tech-item"><span class="tech-num">02</span><span class="tech-name">Quantum Communication Array</span><div class="tech-arrow"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1 5h8M6 2l3 3-3 3" stroke="#6c63ff" stroke-width="1"/></svg></div></div>
+      <div class="tech-item"><span class="tech-num">03</span><span class="tech-name">AI Orbital Navigator</span><div class="tech-arrow"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1 5h8M6 2l3 3-3 3" stroke="#6c63ff" stroke-width="1"/></svg></div></div>
+      <div class="tech-item"><span class="tech-num">04</span><span class="tech-name">Deep Space Sensor Suite</span><div class="tech-arrow"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1 5h8M6 2l3 3-3 3" stroke="#6c63ff" stroke-width="1"/></svg></div></div>
+      <div class="tech-item"><span class="tech-num">05</span><span class="tech-name">Zero-G Manufacturing Platform</span><div class="tech-arrow"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1 5h8M6 2l3 3-3 3" stroke="#6c63ff" stroke-width="1"/></svg></div></div>
+    </div>
+  </div>
+  <div class="tech-visual reveal">
+    <canvas id="techCanvas"></canvas>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact" id="contact">
+  <canvas id="contactCanvas"></canvas>
+  <div class="contact-inner reveal">
+    <p class="section-tag">Get in Touch</p>
+    <h2>Ready to reach <em>Space?</em></h2>
+    <p>Join the next generation of space explorers. Whether you're a researcher, investor, or visionary — let's build the future together.</p>
+    <div class="contact-form">
+      <input type="email" placeholder="Enter your email address">
+      <button class="btn-primary">Launch</button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">NANO GALAXY</div>
+  <div class="footer-links">
+    <a href="#home">Home</a>
+    <a href="#about">About</a>
+    <a href="#services">Services</a>
+    <a href="#tech">Technology</a>
+    <a href="#contact">Contact</a>
+  </div>
+  <div class="footer-copy">&copy; 2024 Nano Galaxy. All rights reserved.</div>
+</footer>
+
+<script>
+// LOADER
+const loaderEl=document.getElementById('loader');
+const fillEl=document.getElementById('loaderFill');
+let prog=0;
+const iv=setInterval(()=>{ prog=Math.min(prog+Math.random()*8,92); fillEl.style.width=prog+'%'; },55);
+window.addEventListener('load',()=>{
+  clearInterval(iv); fillEl.style.width='100%';
+  setTimeout(()=>{ loaderEl.classList.add('hidden'); initAll(); },700);
+});
+
+// CURSOR
+const cur=document.getElementById('cur');
+const ring=document.getElementById('curRing');
+let MX=0,MY=0;
+document.addEventListener('mousemove',e=>{
+  MX=e.clientX; MY=e.clientY;
+  cur.style.left=MX+'px'; cur.style.top=MY+'px';
+  ring.style.left=MX+'px'; ring.style.top=MY+'px';
+});
+document.querySelectorAll('a,button,.service-card,.tech-item').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{ ring.style.width='60px'; ring.style.height='60px'; });
+  el.addEventListener('mouseleave',()=>{ ring.style.width='36px'; ring.style.height='36px'; });
+});
+
+// NAV
+const navEl=document.getElementById('nav');
+window.addEventListener('scroll',()=>navEl.classList.toggle('scrolled',scrollY>60));
+
+// REVEAL
+const ro=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
+},{threshold:0.1});
+document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
+
+// COUNTERS
+const co=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(!e.isIntersecting) return; co.unobserve(e.target);
+    e.target.querySelectorAll('.stat-num').forEach(el=>{
+      const target=parseInt(el.dataset.target),suffix=el.dataset.suffix;
+      let n=0; const step=target/60;
+      const t=setInterval(()=>{
+        n=Math.min(n+step,target);
+        el.textContent=Math.floor(n)+suffix;
+        if(n>=target) clearInterval(t);
+      },20);
+    });
+  });
+},{threshold:0.5});
+const sb=document.getElementById('statsBar');
+if(sb) co.observe(sb);
+
+function initAll(){
+  initHero(); initAbout(); initServiceIcons();
+  initPlanet(); initTech(); initContact();
+}
+
+// ── HERO: Galaxy + Stars ──
+function initHero(){
+  const canvas=document.getElementById('heroCanvas');
+  canvas.width=canvas.offsetWidth; canvas.height=canvas.offsetHeight;
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width,H=canvas.height;
+
+  // Stars
+  const stars=Array.from({length:500},()=>({
+    x:Math.random()*W, y:Math.random()*H,
+    r:Math.random()*1.8+0.2,
+    op:Math.random()*0.8+0.1,
+    twinkle:Math.random()*Math.PI*2,
+    speed:Math.random()*0.02+0.005
+  }));
+
+  // Nebula clouds
+  const nebulas=[
+    {x:W*0.2,y:H*0.3,r:200,c:'rgba(108,99,255,0.04)'},
+    {x:W*0.8,y:H*0.6,r:250,c:'rgba(0,212,255,0.03)'},
+    {x:W*0.5,y:H*0.5,r:300,c:'rgba(108,99,255,0.03)'},
+    {x:W*0.1,y:H*0.8,r:180,c:'rgba(0,212,255,0.04)'},
+  ];
+
+  // Particles flying
+  const particles=Array.from({length:80},()=>({
+    x:Math.random()*W, y:Math.random()*H,
+    vx:(Math.random()-0.5)*0.3,
+    vy:(Math.random()-0.5)*0.3,
+    r:Math.random()*1.2+0.3,
+    op:Math.random()*0.5+0.1,
+    color:Math.random()>0.5?'rgba(108,99,255,':'rgba(0,212,255,'
+  }));
+
+  let t=0;
+  function animate(){
+    requestAnimationFrame(animate);
+    t+=0.008;
+    ctx.fillStyle='rgba(2,4,10,0.15)';
+    ctx.fillRect(0,0,W,H);
+
+    // Nebula
+    nebulas.forEach(n=>{
+      const g=ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,n.r);
+      g.addColorStop(0,n.c); g.addColorStop(1,'transparent');
+      ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+    });
+
+    // Stars
+    stars.forEach(s=>{
+      s.twinkle+=s.speed;
+      const flicker=0.4+0.6*Math.abs(Math.sin(s.twinkle));
+      ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(200,215,255,${s.op*flicker})`; ctx.fill();
+    });
+
+    // Particles
+    particles.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0||p.x>W) p.vx*=-1;
+      if(p.y<0||p.y>H) p.vy*=-1;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=p.color+p.op+')'; ctx.fill();
+    });
+
+    // Shooting star occasionally
+    if(Math.random()<0.003){
+      const sx=Math.random()*W, sy=Math.random()*H*0.5;
+      const len=80+Math.random()*120;
+      const g=ctx.createLinearGradient(sx,sy,sx+len,sy+len*0.5);
+      g.addColorStop(0,'transparent'); g.addColorStop(0.5,'rgba(200,220,255,0.8)'); g.addColorStop(1,'transparent');
+      ctx.strokeStyle=g; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.moveTo(sx,sy); ctx.lineTo(sx+len,sy+len*0.5); ctx.stroke();
+    }
+
+    // Horizon glow
+    const hg=ctx.createLinearGradient(0,H*0.7,0,H);
+    hg.addColorStop(0,'transparent'); hg.addColorStop(1,'rgba(108,99,255,0.08)');
+    ctx.fillStyle=hg; ctx.fillRect(0,0,W,H);
+  }
+  animate();
+  window.addEventListener('resize',()=>{ canvas.width=canvas.offsetWidth; canvas.height=canvas.offsetHeight; });
+}
+
+// ── ABOUT: Satellite orbit ──
+function initAbout(){
+  const canvas=document.getElementById('aboutCanvas');
+  canvas.width=canvas.offsetWidth; canvas.height=canvas.offsetHeight;
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+  const cx=W/2, cy=H/2;
+  let t=0;
+
+  const orbits=[
+    {r:80, speed:0.012, sats:[{a:0,size:4},{a:Math.PI,size:3}], color:'rgba(108,99,255,'},
+    {r:140, speed:0.008, sats:[{a:0,size:5},{a:2.1,size:3},{a:4.2,size:4}], color:'rgba(0,212,255,'},
+    {r:200, speed:0.005, sats:[{a:0,size:6},{a:Math.PI/2,size:3},{a:Math.PI,size:5},{a:Math.PI*1.5,size:3}], color:'rgba(108,99,255,'},
+  ];
+
+  function animate(){
+    requestAnimationFrame(animate);
+    t+=0.01;
+    ctx.clearRect(0,0,W,H);
+
+    // BG glow
+    const bg=ctx.createRadialGradient(cx,cy,0,cx,cy,220);
+    bg.addColorStop(0,'rgba(108,99,255,0.06)'); bg.addColorStop(1,'transparent');
+    ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+
+    // Central planet
+    const pg=ctx.createRadialGradient(cx-30,cy-30,0,cx,cy,70);
+    pg.addColorStop(0,'#3a3080'); pg.addColorStop(0.6,'#1a1540'); pg.addColorStop(1,'#0a0820');
+    ctx.fillStyle=pg; ctx.beginPath(); ctx.arc(cx,cy,68,0,Math.PI*2); ctx.fill();
+
+    // Planet ring
+    ctx.strokeStyle='rgba(108,99,255,0.3)'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.ellipse(cx,cy,100,18,0.3,0,Math.PI*2); ctx.stroke();
+
+    // Atmosphere
+    const ag=ctx.createRadialGradient(cx,cy,65,cx,cy,85);
+    ag.addColorStop(0,'rgba(108,99,255,0.2)'); ag.addColorStop(1,'transparent');
+    ctx.fillStyle=ag; ctx.beginPath(); ctx.arc(cx,cy,85,0,Math.PI*2); ctx.fill();
+
+    orbits.forEach(o=>{
+      // Orbit line
+      ctx.strokeStyle=o.color+'0.15)'; ctx.lineWidth=1;
+      ctx.setLineDash([4,8]);
+      ctx.beginPath(); ctx.ellipse(cx,cy,o.r,o.r*0.35,0,0,Math.PI*2); ctx.stroke();
+      ctx.setLineDash([]);
+
+      o.sats.forEach(s=>{
+        const angle=s.a+t*o.speed*60;
+        const sx=cx+o.r*Math.cos(angle);
+        const sy=cy+o.r*0.35*Math.sin(angle);
+        const depth=0.4+0.6*(Math.sin(angle)+1)/2;
+
+        // Satellite trail
+        for(let i=1;i<=8;i++){
+          const ta=angle-i*0.08;
+          const tx=cx+o.r*Math.cos(ta);
+          const ty=cy+o.r*0.35*Math.sin(ta);
+          ctx.beginPath(); ctx.arc(tx,ty,s.size*0.3*(1-i/8)*depth,0,Math.PI*2);
+          ctx.fillStyle=o.color+(0.3*(1-i/8)*depth)+')'; ctx.fill();
+        }
+
+        // Satellite
+        ctx.beginPath(); ctx.arc(sx,sy,s.size*depth,0,Math.PI*2);
+        ctx.fillStyle=o.color+(0.8*depth)+')'; ctx.fill();
+
+        // Glow
+        const sg=ctx.createRadialGradient(sx,sy,0,sx,sy,s.size*3*depth);
+        sg.addColorStop(0,o.color+(0.3*depth)+')'); sg.addColorStop(1,'transparent');
+        ctx.fillStyle=sg; ctx.beginPath(); ctx.arc(sx,sy,s.size*3*depth,0,Math.PI*2); ctx.fill();
+      });
+    });
+  }
+  animate();
+}
+
+// ── SERVICE ICONS ──
+function initServiceIcons(){
+  const icons=[
+    (ctx,W,H)=>{
+      ctx.strokeStyle='#6c63ff'; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.arc(W/2,H/2,18,0,Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(W/2,H/2,8,0,Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(W/2-22,H/2); ctx.lineTo(W/2+22,H/2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(W/2,H/2-22); ctx.lineTo(W/2,H/2+22); ctx.stroke();
+    },
+    (ctx,W,H)=>{
+      ctx.strokeStyle='#00d4ff'; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.moveTo(W/2,8); ctx.lineTo(W/2+12,H-8); ctx.lineTo(W/2-12,H-8); ctx.closePath(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(W/2,H/2); ctx.lineTo(W/2+8,H-8); ctx.stroke();
+      ctx.fillStyle='rgba(0,212,255,0.3)'; ctx.beginPath(); ctx.arc(W/2,8,4,0,Math.PI*2); ctx.fill();
+    },
+    (ctx,W,H)=>{
+      ctx.strokeStyle='#6c63ff'; ctx.lineWidth=1.5;
+      for(let i=0;i<4;i++){
+        const a=i*Math.PI/2, r=16;
+        ctx.beginPath(); ctx.arc(W/2+r*Math.cos(a),H/2+r*Math.sin(a),5,0,Math.PI*2); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(W/2+r*Math.cos(a),H/2+r*Math.sin(a)); ctx.lineTo(W/2,H/2); ctx.stroke();
+      }
+      ctx.beginPath(); ctx.arc(W/2,H/2,4,0,Math.PI*2); ctx.fillStyle='#6c63ff'; ctx.fill();
+    },
+    (ctx,W,H)=>{
+      ctx.strokeStyle='#00d4ff'; ctx.lineWidth=1.5;
+      for(let i=0;i<3;i++){
+        ctx.beginPath(); ctx.arc(W/2,H/2,(i+1)*8,0,Math.PI*2);
+        ctx.strokeStyle=`rgba(0,212,255,${0.8-i*0.25})`; ctx.stroke();
+      }
+      ctx.fillStyle='#00d4ff'; ctx.beginPath(); ctx.arc(W/2,H/2,3,0,Math.PI*2); ctx.fill();
+    },
+    (ctx,W,H)=>{
+      ctx.strokeStyle='#6c63ff'; ctx.lineWidth=1.5;
+      ctx.strokeRect(W/2-14,H/2-10,28,20);
+      ctx.beginPath(); ctx.moveTo(W/2-20,H/2-4); ctx.lineTo(W/2-14,H/2-4); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(W/2+14,H/2-4); ctx.lineTo(W/2+20,H/2-4); ctx.stroke();
+      ctx.fillStyle='rgba(108,99,255,0.3)'; ctx.fillRect(W/2-10,H/2-6,20,12);
+    },
+    (ctx,W,H)=>{
+      ctx.strokeStyle='#00d4ff'; ctx.lineWidth=1.5;
+      ctx.beginPath();
+      for(let i=0;i<6;i++){
+        const a=i*Math.PI/3-Math.PI/6;
+        i===0?ctx.moveTo(W/2+18*Math.cos(a),H/2+18*Math.sin(a)):ctx.lineTo(W/2+18*Math.cos(a),H/2+18*Math.sin(a));
+      }
+      ctx.closePath(); ctx.stroke();
+      ctx.beginPath(); ctx.arc(W/2,H/2,5,0,Math.PI*2); ctx.fillStyle='rgba(0,212,255,0.5)'; ctx.fill();
+    }
+  ];
+
+  icons.forEach((fn,i)=>{
+    const c=document.getElementById('si'+i);
+    if(!c) return;
+    c.width=56; c.height=56;
+    const ctx=c.getContext('2d');
+    ctx.shadowColor='#6c63ff'; ctx.shadowBlur=8;
+    fn(ctx,56,56);
+  });
+}
+
+// ── PLANET SECTION ──
+function initPlanet(){
+  const canvas=document.getElementById('planetCanvas');
+  canvas.width=canvas.offsetWidth; canvas.height=canvas.offsetHeight;
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+  const cx=W/2, cy=H/2;
+
+  const stars=Array.from({length:400},()=>({
+    x:Math.random()*W, y:Math.random()*H,
+    r:Math.random()*1.5+0.2, op:Math.random()*0.7+0.1,
+    tw:Math.random()*Math.PI*2, sp:Math.random()*0.015+0.003
+  }));
+
+  let t=0;
+  function animate(){
+    requestAnimationFrame(animate);
+    t+=0.005;
+    ctx.fillStyle='rgba(1,2,8,0.08)'; ctx.fillRect(0,0,W,H);
+
+    stars.forEach(s=>{ s.tw+=s.sp; ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fillStyle=`rgba(180,200,255,${s.op*Math.abs(Math.sin(s.tw))})`; ctx.fill(); });
+
+    // Big planet bottom center
+    const pr=280;
+    const pg=ctx.createRadialGradient(cx-60,cy+H*0.4,0,cx,cy+H*0.35,pr);
+    pg.addColorStop(0,'#2a1f6e'); pg.addColorStop(0.4,'#160e45'); pg.addColorStop(0.8,'#080520'); pg.addColorStop(1,'#020210');
+    ctx.fillStyle=pg; ctx.beginPath(); ctx.arc(cx,cy+H*0.38,pr,0,Math.PI*2); ctx.fill();
+
+    // Planet surface lines
+    ctx.save(); ctx.clip(); // clip to planet
+    ctx.beginPath(); ctx.arc(cx,cy+H*0.38,pr,0,Math.PI*2); ctx.clip();
+    for(let i=0;i<5;i++){
+      ctx.strokeStyle=`rgba(108,99,255,${0.06+i*0.02})`;
+      ctx.lineWidth=6+i*4;
+      ctx.beginPath(); ctx.ellipse(cx+Math.sin(t*0.2+i)*20, cy+H*0.38, pr*0.9, 15+i*8, 0.1+i*0.05, 0, Math.PI*2); ctx.stroke();
+    }
+    ctx.restore();
+
+    // Planet atmosphere
+    const ag=ctx.createRadialGradient(cx,cy+H*0.38,pr*0.9,cx,cy+H*0.38,pr*1.12);
+    ag.addColorStop(0,'rgba(108,99,255,0.25)'); ag.addColorStop(0.5,'rgba(0,212,255,0.08)'); ag.addColorStop(1,'transparent');
+    ctx.fillStyle=ag; ctx.beginPath(); ctx.arc(cx,cy+H*0.38,pr*1.12,0,Math.PI*2); ctx.fill();
+
+    // Planet rings
+    ctx.save();
+    ctx.strokeStyle='rgba(108,99,255,0.35)'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.ellipse(cx,cy+H*0.32,pr*1.4,pr*0.2,0,0,Math.PI*2); ctx.stroke();
+    ctx.strokeStyle='rgba(0,212,255,0.2)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.ellipse(cx,cy+H*0.32,pr*1.6,pr*0.24,0,0,Math.PI*2); ctx.stroke();
+    ctx.restore();
+
+    // Top fade
+    const fade=ctx.createLinearGradient(0,0,0,H*0.5);
+    fade.addColorStop(0,'rgba(2,4,10,0.9)'); fade.addColorStop(1,'transparent');
+    ctx.fillStyle=fade; ctx.fillRect(0,0,W,H*0.5);
+  }
+  animate();
+  window.addEventListener('resize',()=>{ canvas.width=canvas.offsetWidth; canvas.height=canvas.offsetHeight; });
+}
+
+// ── TECH: DNA/Circuit helix ──
+function initTech(){
+  const canvas=document.getElementById('techCanvas');
+  canvas.width=canvas.offsetWidth; canvas.height=canvas.offsetHeight;
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+  const cx=W/2;
+  let t=0;
+
+  function animate(){
+    requestAnimationFrame(animate);
+    t+=0.012;
+    ctx.clearRect(0,0,W,H);
+
+    const nodeCount=12;
+    for(let i=0;i<nodeCount;i++){
+      const progress=i/nodeCount;
+      const y=H*0.05+progress*H*0.9;
+      const wave=60*Math.sin(progress*Math.PI*3+t);
+      const wave2=60*Math.sin(progress*Math.PI*3+t+Math.PI);
+
+      // Connecting lines
+      if(i<nodeCount-1){
+        const np=(i+1)/nodeCount;
+        const ny=H*0.05+np*H*0.9;
+        const nw=60*Math.sin(np*Math.PI*3+t);
+        const nw2=60*Math.sin(np*Math.PI*3+t+Math.PI);
+
+        const g=ctx.createLinearGradient(cx+wave,y,cx+nw,ny);
+        g.addColorStop(0,'rgba(108,99,255,0.6)'); g.addColorStop(1,'rgba(108,99,255,0.3)');
+        ctx.strokeStyle=g; ctx.lineWidth=1.5;
+        ctx.beginPath(); ctx.moveTo(cx+wave,y); ctx.lineTo(cx+nw,ny); ctx.stroke();
+
+        const g2=ctx.createLinearGradient(cx+wave2,y,cx+nw2,ny);
+        g2.addColorStop(0,'rgba(0,212,255,0.6)'); g2.addColorStop(1,'rgba(0,212,255,0.3)');
+        ctx.strokeStyle=g2; ctx.lineWidth=1.5;
+        ctx.beginPath(); ctx.moveTo(cx+wave2,y); ctx.lineTo(cx+nw2,ny); ctx.stroke();
+
+        // Cross links
+        if(i%2===0){
+          const mg=ctx.createLinearGradient(cx+wave,y,cx+wave2,y);
+          mg.addColorStop(0,'rgba(108,99,255,0.4)'); mg.addColorStop(1,'rgba(0,212,255,0.4)');
+          ctx.strokeStyle=mg; ctx.lineWidth=1;
+          ctx.beginPath(); ctx.moveTo(cx+wave,y); ctx.lineTo(cx+wave2,y); ctx.stroke();
+        }
+      }
+
+      // Nodes
+      const depth=0.4+0.6*(Math.sin(progress*Math.PI*3+t)+1)/2;
+      ctx.beginPath(); ctx.arc(cx+wave,y,4*depth,0,Math.PI*2);
+      const ng=ctx.createRadialGradient(cx+wave,y,0,cx+wave,y,8*depth);
+      ng.addColorStop(0,'rgba(108,99,255,0.9)'); ng.addColorStop(1,'transparent');
+      ctx.fillStyle=ng; ctx.fill();
+      ctx.beginPath(); ctx.arc(cx+wave,y,2.5*depth,0,Math.PI*2);
+      ctx.fillStyle=`rgba(108,99,255,${depth})`; ctx.fill();
+
+      const d2=0.4+0.6*(Math.sin(progress*Math.PI*3+t+Math.PI)+1)/2;
+      ctx.beginPath(); ctx.arc(cx+wave2,y,4*d2,0,Math.PI*2);
+      const ng2=ctx.createRadialGradient(cx+wave2,y,0,cx+wave2,y,8*d2);
+      ng2.addColorStop(0,'rgba(0,212,255,0.9)'); ng2.addColorStop(1,'transparent');
+      ctx.fillStyle=ng2; ctx.fill();
+      ctx.beginPath(); ctx.arc(cx+wave2,y,2.5*d2,0,Math.PI*2);
+      ctx.fillStyle=`rgba(0,212,255,${d2})`; ctx.fill();
+    }
+  }
+  animate();
+  window.addEventListener('resize',()=>{ canvas.width=canvas.offsetWidth; canvas.height=canvas.offsetHeight; });
+}
+
+// ── CONTACT: Warp stars ──
+function initContact(){
+  const canvas=document.getElementById('contactCanvas');
+  const section=canvas.parentElement;
+  canvas.width=section.offsetWidth; canvas.height=section.offsetHeight;
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+  const cx=W/2, cy=H/2;
+
+  const warpStars=Array.from({length:200},()=>{
+    const a=Math.random()*Math.PI*2;
+    const r=Math.random()*Math.max(W,H)*0.6;
+    return { x:cx+r*Math.cos(a), y:cy+r*Math.sin(a), a, r, speed:Math.random()*0.5+0.1 };
+  });
+
+  function animate(){
+    requestAnimationFrame(animate);
+    ctx.fillStyle='rgba(2,4,10,0.12)'; ctx.fillRect(0,0,W,H);
+    warpStars.forEach(s=>{
+      s.r+=s.speed*0.5;
+      if(s.r>Math.max(W,H)*0.6){ s.r=0; }
+      s.x=cx+s.r*Math.cos(s.a); s.y=cy+s.r*Math.sin(s.a);
+      const op=s.r/(Math.max(W,H)*0.6);
+      const len=s.speed*3;
+      ctx.strokeStyle=`rgba(108,99,255,${op*0.5})`;
+      ctx.lineWidth=1;
+      ctx.beginPath();
+      ctx.moveTo(s.x,s.y);
+      ctx.lineTo(s.x-len*Math.cos(s.a),s.y-len*Math.sin(s.a));
+      ctx.stroke();
+    });
+    window.addEventListener('resize',()=>{ canvas.width=section.offsetWidth; canvas.height=section.offsetHeight; });
+  }
+  animate();
+}
+</script>
+</body>
+</html>
